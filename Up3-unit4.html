@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 4: Getting Together Quiz</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+        * { font-family: 'DM Sans', sans-serif; }
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .bounce { animation: bounce 0.5s ease; }
+        @keyframes bounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen flex flex-col bg-gradient-to-br from-sky-100 via-purple-50 to-yellow-50">
+  <header data-template-id="header-bar" class="canva-header fixed top-0 left-0 right-0 z-50 bg-indigo-600 text-white px-4 py-2 flex justify-between items-center text-sm shadow-lg"><span data-template-id="header-left" class="canva-text"></span> <span data-template-id="header-right" class="canva-text font-bold"></span>
+  </header>
+  <main class="flex-1 pt-12 pb-12 px-4 flex items-center justify-center">
+   <div id="app" class="w-full max-w-2xl"></div>
+  </main>
+  <footer data-template-id="footer-bar" class="canva-footer fixed bottom-0 left-0 right-0 z-50 bg-indigo-600 text-white px-4 py-2 flex justify-between items-center text-sm"><span data-template-id="footer-left" class="canva-text"></span> <span data-template-id="footer-right" class="canva-text font-bold"></span>
+  </footer>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <script>
+    const quizData = [
+      // Part 1
+      { part: 1, partName: "📚 Part 1: Vocabulary", svg: "spoon", question: "What is this?", options: ["fork","plate","spoon","bowl"], correct: 2, explanation: '"Spoon" nghĩa là cái thìa dùng để ăn hoặc khuấy đồ ăn.' },
+      { part: 1, svg: "plate", question: "What is this?", options: ["plate","cup","bowl","knife"], correct: 0, explanation: '"Plate" nghĩa là cái đĩa dùng để đựng thức ăn.' },
+      { part: 1, svg: "cup", question: "What is this?", options: ["spoon","cup","bowl","fork"], correct: 1, explanation: '"Cup" nghĩa là cái cốc dùng để uống nước.' },
+      { part: 1, hint: "He is your father's brother.", question: "Who is he?", options: ["cousin","uncle","grandfather","nephew"], correct: 1, explanation: '"Uncle" nghĩa là chú, bác hoặc cậu.' },
+      { part: 1, hint: "They are your mother's and father's parents.", question: "Who are they?", options: ["cousins","uncles","grandparents","parents"], correct: 2, explanation: '"Grandparents" nghĩa là ông bà.' },
+      // Part 2
+      { part: 2, partName: "✏️ Part 2: Grammar & Sentence Order", hintBox: "Who / are / they", question: "📝 Arrange the words into a correct sentence.", options: ["Who they are?","Who are they?","Are who they?","They are who?"], correct: 1, explanation: 'Dùng để hỏi: "Họ là ai?"' },
+      { part: 2, hintBox: "This / mine / is", question: "📝 Arrange the words into a correct sentence.", options: ["Mine this is.","Is this mine.","This is mine.","This mine is."], correct: 2, explanation: '"This is mine." nghĩa là "Cái này là của tôi."' },
+      { part: 2, hintBox: "Whose / fork / is / it", question: "📝 Arrange the words into a correct sentence.", options: ["Whose fork is it?","Fork whose is it?","Is it whose fork?","It is whose fork?"], correct: 0, explanation: 'Dùng để hỏi đồ vật thuộc về ai.' },
+      { part: 2, hintBox: "He / uncle / my / is", question: "📝 Arrange the words into a correct sentence.", options: ["Uncle he is my.","Is he my uncle.","He my uncle is.","He is my uncle."], correct: 3, explanation: '"He is my uncle." nghĩa là "Ông ấy là chú của tôi."' },
+      { part: 2, hintBox: "It / ours / is", question: "📝 Arrange the words into a correct sentence.", options: ["It ours is.","Ours it is.","It is ours.","Is ours it."], correct: 2, explanation: '"It is ours." nghĩa là "Nó là của chúng tôi."' },
+      // Part 3
+      { part: 3, partName: "📖 Part 3: Reading & Fill in the Blank", blank: 11, options: ["cousins","grandparents","parents","uncles"], correct: 2, explanation: 'Father và mother gọi chung là parents.' },
+      { part: 3, blank: 12, options: ["cousins","grandparents","parents","friends"], correct: 1, explanation: 'Grandfather và grandmother gọi chung là grandparents.' },
+      { part: 3, blank: 13, options: ["cousin","grandfather","uncle","father"], correct: 2, explanation: 'Anh/em trai của bố là uncle.' },
+      { part: 3, blank: 14, options: ["our","us","we","ours"], correct: 3, explanation: '"This is our flag." → "It is ours."' },
+      { part: 3, blank: 15, options: ["hers","her","she","herses"], correct: 0, explanation: 'Lá cờ thuộc về Yuki nên dùng đại từ sở hữu hers.' },
+    ];
+
+    const readingText = `Hello! My name is Diego.\nI am from Mexico.\nThis is my father and mother.\nThey are my (11) ______.\n\nMy friend Yuki is from Japan.\nThis is her grandfather and grandmother.\nThey are her (12) ______.\n\nMy friend Ali is from Turkey.\nThis is his father's brother.\nHe is Ali's (13) ______.\n\nWe are talking about our countries.\nThis is the flag of Mexico.\nIt is (14) ______.\n\nYuki shows the flag of Japan.\nIt is (15) ______.\n\nWe are happy to learn together!`;
+
+    const svgs = {
+      spoon: `<svg viewBox="0 0 100 200" width="80" height="160"><ellipse cx="50" cy="40" rx="25" ry="35" fill="#C0C0C0" stroke="#888" stroke-width="2"/><rect x="45" y="70" width="10" height="110" rx="5" fill="#C0C0C0" stroke="#888" stroke-width="2"/></svg>`,
+      plate: `<svg viewBox="0 0 200 120" width="160" height="96"><ellipse cx="100" cy="60" rx="90" ry="50" fill="#fff" stroke="#888" stroke-width="3"/><ellipse cx="100" cy="60" rx="60" ry="33" fill="#f0f0f0" stroke="#bbb" stroke-width="2"/></svg>`,
+      cup: `<svg viewBox="0 0 120 140" width="96" height="112"><rect x="20" y="20" width="60" height="90" rx="8" fill="#fff" stroke="#888" stroke-width="3"/><path d="M80 40 Q110 40 110 70 Q110 100 80 100" fill="none" stroke="#888" stroke-width="3"/><rect x="20" y="110" width="60" height="8" rx="4" fill="#ddd" stroke="#888" stroke-width="2"/></svg>`,
+    };
+
+    let current = 0, score = 0, answered = false;
+    const app = document.getElementById('app');
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      if (type === 'correct') { o.type='sine'; o.frequency.setValueAtTime(523,audioCtx.currentTime); o.frequency.setValueAtTime(659,audioCtx.currentTime+0.2); o.frequency.setValueAtTime(784,audioCtx.currentTime+0.4); g.gain.setValueAtTime(0.3,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+1.5); o.start(); o.stop(audioCtx.currentTime+1.5); }
+      else if (type === 'wrong') { o.type='sawtooth'; o.frequency.setValueAtTime(200,audioCtx.currentTime); o.frequency.setValueAtTime(150,audioCtx.currentTime+0.3); g.gain.setValueAtTime(0.2,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+1.5); o.start(); o.stop(audioCtx.currentTime+1.5); }
+      else { o.type='sine'; o.frequency.setValueAtTime(392,audioCtx.currentTime); o.frequency.setValueAtTime(523,audioCtx.currentTime+0.3); o.frequency.setValueAtTime(659,audioCtx.currentTime+0.6); o.frequency.setValueAtTime(784,audioCtx.currentTime+0.9); o.frequency.setValueAtTime(1047,audioCtx.currentTime+1.2); g.gain.setValueAtTime(0.3,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+2.5); o.start(); o.stop(audioCtx.currentTime+2.5); }
+    }
+
+    function renderStart() {
+      app.innerHTML = `<div class="text-center fade-in bg-white rounded-3xl shadow-xl p-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-indigo-700 mb-4">🏠 Unit 4: Getting Together</h1>
+        <p class="text-lg text-gray-600 mb-6">Level: Cambridge Pre A1 Starters</p>
+        <button onclick="startQuiz()" class="bg-gradient-to-r from-pink-500 to-orange-400 text-white text-xl font-bold px-8 py-4 rounded-full shadow-lg hover:scale-105 transition-transform">🚀 Start Quiz</button>
+      </div>`;
+    }
+
+    function startQuiz() { current=0; score=0; renderQuestion(); }
+
+    function renderQuestion() {
+      answered = false;
+      const q = quizData[current];
+      const letters = ['A','B','C','D'];
+      let partBanner = '';
+      if (q.partName) partBanner = `<div class="text-center font-bold text-2xl md:text-3xl mb-4 py-3 rounded-xl ${q.part===1?'bg-green-100 text-green-700':q.part===2?'bg-yellow-100 text-yellow-700':'bg-blue-100 text-blue-700'}">${q.partName}</div>`;
+
+      let visual = '';
+      if (q.svg) visual = `<div class="flex justify-center my-4">${svgs[q.svg]}</div>`;
+      if (q.hint && !q.hintBox) visual = `<div class="bg-amber-50 border-2 border-amber-300 rounded-xl p-4 text-center text-lg font-medium text-amber-800 my-4">💡 ${q.hint}</div>`;
+      if (q.hintBox) visual = `<div class="bg-yellow-300 rounded-2xl p-5 text-center font-bold text-3xl shadow-md my-4">${q.hintBox}</div>`;
+
+      let reading = '';
+      if (q.part === 3) {
+        reading = `<div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 text-sm md:text-base leading-relaxed whitespace-pre-line mb-4 max-h-48 overflow-y-auto">${readingText}</div>`;
+        if (q.partName) reading = `<div class="bg-blue-100 rounded-xl p-3 text-center font-bold text-xl text-blue-700 mb-3">📖 Read the text and choose the best answer for each blank.</div>` + reading;
+      }
+
+      const questionText = q.blank ? `Fill in blank (${q.blank}):` : q.question;
+
+      let optionsHtml = q.options.map((o,i) => `<button onclick="selectAnswer(${i})" id="opt${i}" class="opt-btn w-full text-left text-lg font-medium px-5 py-4 rounded-xl border-2 border-gray-200 bg-white hover:border-indigo-400 hover:bg-indigo-50 transition-all">${letters[i]}. ${o}</button>`).join('');
+
+      const progress = ((current)/15*100).toFixed(0);
+      const sectionName = q.part===1?'Vocabulary':q.part===2?'Grammar & Sentence Order':'Reading & Fill in the Blank';
+
+      app.innerHTML = `<div class="fade-in">
+        <div class="mb-4">
+          <div class="flex justify-between text-sm text-gray-600 mb-1"><span>Question ${current+1} / 15</span><span>${sectionName}</span></div>
+          <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-indigo-500 to-pink-500 transition-all duration-500" style="width:${progress}%"></div></div>
+        </div>
+        <div class="bg-white rounded-3xl shadow-xl p-6">
+          ${partBanner}${reading}${visual}
+          <p class="text-xl font-bold text-gray-800 mb-4">${questionText}</p>
+          <div class="space-y-3" id="options">${optionsHtml}</div>
+          <div id="feedback" class="mt-4 hidden rounded-xl p-4 text-lg font-medium"></div>
+        </div>
+      </div>`;
+    }
+
+    function selectAnswer(i) {
+      if (answered) return;
+      answered = true;
+      const q = quizData[current];
+      const btns = document.querySelectorAll('.opt-btn');
+      btns.forEach((b,idx) => {
+        b.style.pointerEvents = 'none';
+        if (idx === q.correct) { b.classList.remove('border-gray-200','bg-white'); b.classList.add('border-green-500','bg-green-100'); }
+        else if (idx === i && i !== q.correct) { b.classList.remove('border-gray-200','bg-white'); b.classList.add('border-red-500','bg-red-100'); }
+      });
+      const fb = document.getElementById('feedback');
+      fb.classList.remove('hidden');
+      if (i === q.correct) {
+        score++;
+        fb.className = 'mt-4 rounded-xl p-4 text-lg font-medium bg-green-100 text-green-800 border-2 border-green-400 bounce';
+        fb.innerHTML = `✅ <strong>Chính xác!</strong><br>${q.explanation}`;
+        playSound('correct');
+      } else {
+        const letters = ['A','B','C','D'];
+        fb.className = 'mt-4 rounded-xl p-4 text-lg font-medium bg-red-100 text-red-800 border-2 border-red-400 bounce';
+        fb.innerHTML = `❌ <strong>Chưa chính xác</strong><br>Đáp án đúng là: ${letters[q.correct]}. ${q.options[q.correct]}<br>${q.explanation}`;
+        playSound('wrong');
+      }
+      setTimeout(() => { current++; if (current < 15) renderQuestion(); else renderResult(); }, 3000);
+    }
+
+    function renderResult() {
+      playSound('celebrate');
+      const pct = Math.round(score/15*100);
+      let msg = '';
+      if (score===15) msg='🌟 Xuất sắc! Em đã nắm rất chắc Unit 4.';
+      else if (score>=12) msg='👏 Rất tốt! Em chỉ sai một vài câu.';
+      else if (score>=8) msg='👍 Khá tốt! Hãy luyện tập thêm nhé.';
+      else msg='💪 Cố gắng lên! Hãy ôn lại từ vựng và ngữ pháp Unit 4.';
+      app.innerHTML = `<div class="fade-in text-center bg-white rounded-3xl shadow-xl p-8">
+        <h1 class="text-4xl font-bold text-indigo-700 mb-4">🎉 Well Done!</h1>
+        <p class="text-5xl font-bold text-pink-500 mb-2">${score} / 15</p>
+        <p class="text-2xl text-gray-600 mb-4">${pct}%</p>
+        <p class="text-xl mb-6">${msg}</p>
+        <button onclick="renderStart()" class="bg-gradient-to-r from-green-400 to-cyan-500 text-white text-xl font-bold px-8 py-4 rounded-full shadow-lg hover:scale-105 transition-transform">🔄 Play Again</button>
+      </div>`;
+    }
+
+    renderStart();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0e05193b42b6029',t:'MTc4MTg0ODg4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
