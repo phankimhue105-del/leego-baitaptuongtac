@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Up 3 - Unit 3: People in Town Quiz</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+        body { font-family: 'DM Sans', sans-serif; }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not([disabled]) { background-color: #e8f4fd; border-color: #0056b3; }
+        .option-btn.correct { background-color: #d4edda !important; border-color: #28a745 !important; color: #155724 !important; font-weight: bold; }
+        .option-btn.incorrect { background-color: #f8d7da !important; border-color: #dc3545 !important; color: #721c24 !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease; }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen flex flex-col">
+  <header data-template-id="header-section" class="canva-header p-3 px-5 flex justify-between items-center border-b-4 border-yellow-400 shadow-sm z-10">
+   <span data-template-id="header-brand" class="canva-text font-bold text-sm"></span> <span data-template-id="header-unit" class="canva-text font-bold text-sm"></span>
+  </header>
+  <main class="flex-1 flex justify-center items-center p-5">
+   <div class="w-full max-w-[650px] bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-7">
+    <div id="start-screen" class="text-center py-8">
+     <h1 data-template-id="start-title" class="canva-text text-4xl font-bold mb-8 text-blue-700"></h1><button id="start-btn" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-colors" onclick="startQuiz()"></button>
+    </div>
+    <div id="quiz-game" class="hidden">
+     <div class="flex justify-between items-center mb-4">
+      <span data-template-id="section-badge" class="canva-tag bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold"></span> <span id="progress-text" class="text-gray-500 font-bold text-sm"></span>
+     </div>
+     <div id="reading-context-box" class="hidden bg-gray-50 border-l-4 border-blue-700 p-4 mb-4 text-base leading-relaxed rounded italic"></div>
+     <div id="question-text" class="text-lg font-bold mb-5 text-gray-900"></div>
+     <div id="options-container" class="flex flex-col gap-3 mb-5"></div>
+     <div id="feedback-box" class="hidden p-4 rounded-xl mb-5 fade-in">
+      <div id="feedback-status" class="text-lg font-bold mb-2"></div>
+      <div id="explanation-text" class="text-gray-600 text-sm border-t border-dashed border-gray-300 pt-2 mt-1"></div>
+     </div><button id="next-btn" class="hidden w-full bg-blue-700 hover:bg-blue-900 text-white font-bold py-3 rounded-xl text-base" onclick="nextQuestion()">Câu tiếp theo</button>
+    </div>
+    <div id="score-screen" class="hidden text-center py-5">
+     <div data-template-id="score-title" class="canva-text text-3xl text-blue-700 mb-4 font-bold"></div>
+     <div id="final-score" class="text-5xl font-bold text-yellow-500 mb-5"></div>
+     <div id="score-message" class="text-lg mb-6 leading-relaxed"></div><button data-template-id="restart-btn" class="canva-button bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl text-base" onclick="restartQuiz()"></button>
+    </div>
+   </div>
+  </main>
+  <footer data-template-id="footer-section" class="canva-footer p-3 px-5 flex justify-between items-center border-t-4 border-yellow-400 shadow-sm z-10">
+   <span data-template-id="footer-brand" class="canva-text font-bold text-sm"></span> <span data-template-id="footer-unit" class="canva-text font-bold text-sm"></span>
+  </footer>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <script>
+        const questions = [
+            { section: "Phần 1: Từ vựng", hint: "This person makes food.", options: ["cook", "vet", "cashier", "server"], correct: 0, exp: '"Cook" là đầu bếp, người chịu trách nhiệm làm ra thức ăn (make food).' },
+            { section: "Phần 1: Từ vựng", hint: "This person helps sick animals.", options: ["postal worker", "vet", "librarian", "salesperson"], correct: 1, exp: '"Vet" là bác sĩ thú y, chuyên khám và chữa bệnh cho động vật.' },
+            { section: "Phần 1: Từ vựng", hint: "Oh no! My head hurts. I have a .........", options: ["cold", "fever", "stomachache", "headache"], correct: 3, exp: '"Headache" là bệnh đau đầu. Trùng khớp với mô tả đau ở phần đầu (head hurts).' },
+            { section: "Phần 1: Từ vựng", hint: "This person takes money at the supermarket.", options: ["cook", "cashier", "pilot", "server"], correct: 1, exp: '"Cashier" là nhân viên thu ngân, chuyên nhận tiền thanh toán tại siêu thị.' },
+            { section: "Phần 1: Từ vựng", hint: "He is very hot. He has a ............", options: ["cold", "headache", "fever", "stomachache"], correct: 2, exp: '"Fever" là triệu chứng sốt cao, khiến nhiệt độ cơ thể người bệnh rất nóng (very hot).' },
+            { section: "Phần 2: Ngữ pháp", hint: "______ does the cashier work? - The cashier works at the supermarket.", options: ["Who", "Where", "What", "How"], correct: 1, exp: 'Câu trả lời chứa địa điểm "at the supermarket", vì vậy câu hỏi cần dùng từ nghi vấn "Where" (Ở đâu).' },
+            { section: "Phần 2: Ngữ pháp", hint: "Does the cook make food? - ______.", options: ["Yes, he/she does", "No, he/she doesn't", "Yes, I do", "No, I don't"], correct: 0, exp: 'Câu hỏi bắt đầu bằng trợ động từ "Does" ở thể khẳng định đúng thực tế, nên câu trả lời chuẩn là "Yes, he/she does".' },
+            { section: "Phần 2: Ngữ pháp", hint: "Excuse me. How ______ is this sweater? - It's $30.", options: ["many", "much", "old", "long"], correct: 1, exp: 'Để hỏi giá trị hoặc giá tiền của một món đồ vật, chúng ta sử dụng cấu trúc quen thuộc "How much...?".' },
+            { section: "Phần 2: Ngữ pháp", hint: "What's the matter with ______? - She has a cold.", options: ["him", "he", "her", "she"], correct: 2, exp: 'Sau giới từ "with" cần một đại từ tân ngữ. Dựa vào chủ ngữ câu sau là "She", ta chọn tân ngữ tương ứng là "her".' },
+            { section: "Phần 2: Ngữ pháp", hint: "Who works at the library? - The ______ works at the library.", options: ["librarian", "salesperson", "postal worker", "vet"], correct: 0, exp: '"Librarian" có nghĩa là thủ thư, là người có nhiệm vụ làm việc trực tiếp tại thư viện (library).' },
+            { section: "Phần 3: Bài đọc điền từ", isReading: true, context: "This is my town. There is a supermarket. A (11)______ works there. My mom is a (12)______. She makes food. Oh no! My brother is sick today. What's the (13)______ with (14)______? He has a (15)______. He is very hot.", hint: "Question 11: Choose the correct word for blank (11)", options: ["vet", "pilot", "cashier", "server"], correct: 2, exp: 'Dựa vào câu trước đề cập tới "supermarket" (siêu thị), người làm việc tại đây hợp lý nhất là "cashier" (thu ngân).' },
+            { section: "Phần 3: Bài đọc điền từ", isReading: true, context: "This is my town. There is a supermarket. A (11)______ works there. My mom is a (12)______. She makes food. Oh no! My brother is sick today. What's the (13)______ with (14)______? He has a (15)______. He is very hot.", hint: "Question 12: Choose the correct word for blank (12)", options: ["cook", "librarian", "postal worker", "salesperson"], correct: 0, exp: 'Câu tiếp theo có giải thích hành động "She makes food" (Mẹ làm đồ ăn), do đó nghề nghiệp của mẹ là "cook" (đầu bếp).' },
+            { section: "Phần 3: Bài đọc điền từ", isReading: true, context: "This is my town. There is a supermarket. A (11)______ works there. My mom is a (12)______. She makes food. Oh no! My brother is sick today. What's the (13)______ with (14)______? He has a (15)______. He is very hot.", hint: "Question 13: Choose the correct word for blank (13)", options: ["problem", "wrong", "matter", "bad"], correct: 2, exp: 'Áp dụng chính xác cấu trúc cố định dùng để hỏi thăm tình hình sức khỏe: "What\'s the matter with...?".' },
+            { section: "Phần 3: Bài đọc điền từ", isReading: true, context: "This is my town. There is a supermarket. A (11)______ works there. My mom is a (12)______. She makes food. Oh no! My brother is sick today. What's the (13)______ with (14)______? He has a (15)______. He is very hot.", hint: "Question 14: Choose the correct word for blank (14)", options: ["she", "him", "her", "he"], correct: 1, exp: 'Câu trước nhắc tới nhân vật "my brother" (anh/em trai - nam giới), do đó tân ngữ thích hợp để điền vào đây phải là "him".' },
+            { section: "Phần 3: Bài đọc điền từ", isReading: true, context: "This is my town. There is a supermarket. A (11)______ works there. My mom is a (12)______. She makes food. Oh no! My brother is sick today. What's the (13)______ with (14)______? He has a (15)______. He is very hot.", hint: "Question 15: Choose the correct word for blank (15)", options: ["cold", "stomachache", "headache", "fever"], correct: 3, exp: 'Câu cuối bổ sung manh mối "He is very hot" (Người cậu ấy rất nóng), chứng tỏ cậu ấy đang bị sốt ("fever").' }
+        ];
+
+        let currentIdx = 0, score = 0, answered = false;
+
+        function playSoundEffect(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const now = ctx.currentTime;
+                if (type === 'correct') {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                        const osc = ctx.createOscillator(), gain = ctx.createGain();
+                        osc.type = 'sine'; osc.frequency.setValueAtTime(f, now + i * 0.1);
+                        gain.gain.setValueAtTime(0.2, now + i * 0.1); gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.4);
+                        osc.connect(gain); gain.connect(ctx.destination); osc.start(now + i * 0.1); osc.stop(now + i * 0.1 + 0.4);
+                    });
+                } else if (type === 'incorrect') {
+                    const osc = ctx.createOscillator(), gain = ctx.createGain();
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, now); osc.frequency.linearRampToValueAtTime(90, now + 0.4);
+                    gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.connect(gain); gain.connect(ctx.destination); osc.start(now); osc.stop(now + 0.4);
+                } else if (type === 'victory') {
+                    [261.63, 329.63, 392.00, 523.25].forEach(f => {
+                        const osc = ctx.createOscillator(), gain = ctx.createGain();
+                        osc.type = 'triangle'; osc.frequency.setValueAtTime(f, now); osc.frequency.setValueAtTime(f * 1.5, now + 0.3);
+                        gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+                        osc.connect(gain); gain.connect(ctx.destination); osc.start(now); osc.stop(now + 0.8);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const q = questions[currentIdx];
+            document.getElementById('progress-text').textContent = `Câu ${currentIdx + 1}/15`;
+            document.getElementById('question-text').textContent = q.hint;
+            document.getElementById('explanation-text').textContent = q.exp;
+
+            // Section badge - update via textContent since it's dynamic
+            const badge = document.querySelector('[data-template-id="section-badge"]');
+            badge.textContent = q.section;
+
+            const ctx = document.getElementById('reading-context-box');
+            if (q.isReading) { ctx.textContent = q.context; ctx.classList.remove('hidden'); }
+            else { ctx.classList.add('hidden'); }
+
+            document.getElementById('feedback-box').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn bg-white border-2 border-gray-300 rounded-xl py-3 px-5 text-base text-left cursor-pointer font-medium';
+                btn.textContent = `${String.fromCharCode(65 + idx)}. ${opt}`;
+                btn.onclick = () => checkAnswer(idx, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx, btn) {
+            if (answered) return;
+            answered = true;
+            const q = questions[currentIdx];
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.disabled = true);
+
+            const fb = document.getElementById('feedback-box');
+            const status = document.getElementById('feedback-status');
+
+            if (idx === q.correct) {
+                score++; btn.classList.add('correct');
+                status.textContent = '✅ Chính xác!';
+                fb.className = 'p-4 rounded-xl mb-5 fade-in bg-green-50 border border-green-500 text-green-700';
+                playSoundEffect('correct');
+            } else {
+                btn.classList.add('incorrect'); buttons[q.correct].classList.add('correct');
+                status.textContent = '❌ Chưa chính xác';
+                fb.className = 'p-4 rounded-xl mb-5 fade-in bg-red-50 border border-red-500 text-red-700';
+                playSoundEffect('incorrect');
+            }
+            fb.classList.remove('hidden');
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentIdx++;
+            if (currentIdx < questions.length) loadQuestion();
+            else showResults();
+        }
+
+        function showResults() {
+            document.getElementById('quiz-game').classList.add('hidden');
+            const ss = document.getElementById('score-screen');
+            ss.classList.remove('hidden');
+            document.getElementById('final-score').textContent = `${score} / 15`;
+            let msg = score >= 13 ? 'Xuất sắc! Em nắm rất chắc từ vựng và cấu trúc của Unit 3 rồi đấy! 🌟'
+                : score >= 9 ? 'Làm tốt lắm! Em đã hoàn thành bài tập một cách xứng đáng. Hãy phát huy thêm nhé! 👍'
+                : 'Em đã cố gắng rồi! Hãy xem lại phần giải thích và thử luyện tập lại nhé! ❤️';
+            document.getElementById('score-message').textContent = msg;
+            playSoundEffect('victory');
+        }
+
+        function restartQuiz() {
+            currentIdx = 0; score = 0;
+            document.getElementById('quiz-game').classList.add('hidden');
+            document.getElementById('score-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-game').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        window.onload = () => {
+            document.getElementById('start-btn').textContent = 'Start Quiz';
+            document.querySelector('[data-template-id="start-title"]').textContent = 'Unit 3: People in town';
+        };
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0e1b222e48c32c1',t:'MTc4MTg2MzMyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
