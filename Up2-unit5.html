@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 5: Things To Do</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+        body { font-family: 'DM Sans', sans-serif; }
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes confettiFall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        .confetti-piece { position: fixed; width: 10px; height: 10px; top: -10px; animation: confettiFall 3s ease-out forwards; pointer-events: none; z-index: 9999; }
+        .word-btn { transition: all 0.2s; }
+        .word-btn:hover { transform: scale(1.05); }
+        .word-btn.selected { opacity: 0.4; pointer-events: none; }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50"><!-- Header -->
+  <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-50 px-4 py-2 flex justify-between items-center text-sm">
+   <div class="font-medium text-gray-700">
+    Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585
+   </div>
+   <div class="font-bold text-indigo-600">
+    Up 2 - Unit 5
+   </div>
+  </header><!-- Footer -->
+  <footer class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-50 px-4 py-2 flex justify-between items-center text-sm">
+   <div class="font-medium text-gray-700">
+    Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585
+   </div>
+   <div class="font-bold text-indigo-600">
+    Up 2 - Unit 5
+   </div>
+  </footer><!-- Main Content -->
+  <main class="pt-14 pb-14 px-4 max-w-2xl mx-auto"><!-- Cover Page -->
+   <section id="cover-page" class="flex flex-col items-center justify-center min-h-[calc(80*min(var(--vh,1vh),1vh))] fade-in">
+    <div class="text-center">
+     <h1 data-template-id="cover-title" class="canva-text text-4xl md:text-5xl font-bold text-indigo-700 mb-4"></h1>
+     <p data-template-id="cover-subtitle" class="canva-text text-xl text-gray-500 mb-10"></p>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm"><label data-template-id="password-label" class="canva-text block text-center font-medium text-gray-700 mb-4" for="pw-input"></label> <input id="pw-input" type="password" class="w-full border-2 border-indigo-200 rounded-xl px-4 py-3 text-center text-lg focus:outline-none focus:border-indigo-500" placeholder="Nhập mật khẩu..."> <button id="pw-btn" data-template-id="password-btn" class="canva-button w-full mt-4 bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition"></button>
+     <p id="pw-error" class="text-red-500 text-center mt-3 text-sm hidden">Mật khẩu chưa đúng. Vui lòng thử lại.</p>
+    </div>
+   </section><!-- Quiz Section -->
+   <section id="quiz-section" class="hidden"><!-- Progress Bar -->
+    <div class="mb-6 mt-4">
+     <div class="flex justify-between text-sm text-gray-500 mb-1"><span id="progress-text">Câu 1/12</span> <span id="progress-pct">0%</span>
+     </div>
+     <div class="w-full bg-gray-200 rounded-full h-3">
+      <div id="progress-bar" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width:0%"></div>
+     </div>
+    </div><!-- Question Container -->
+    <div id="question-container" class="bg-white rounded-2xl shadow-lg p-6 fade-in"></div>
+   </section><!-- Results Section -->
+   <section id="results-section" class="hidden flex flex-col items-center justify-center min-h-[calc(70*min(var(--vh,1vh),1vh))] fade-in">
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center w-full max-w-md">
+     <h2 class="text-3xl font-bold text-indigo-700 mb-2">🎉 HOÀN THÀNH BÀI TẬP 🎉</h2>
+     <div id="result-score" class="text-5xl font-bold text-indigo-600 my-4"></div>
+     <div id="result-pct" class="text-xl text-gray-500 mb-2"></div>
+     <div id="result-rank" class="text-2xl mb-6"></div><button id="retry-btn" data-template-id="retry-btn" class="canva-button bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-indigo-700 transition"></button>
+    </div>
+   </section>
+  </main><!-- Popup Overlay -->
+  <div id="popup-overlay" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
+   <div id="popup-box" class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl fade-in">
+    <div id="popup-icon" class="text-4xl text-center mb-2"></div>
+    <h3 id="popup-title" class="text-xl font-bold text-center mb-3"></h3>
+    <p id="popup-text" class="text-gray-600 text-sm leading-relaxed mb-4"></p><button id="popup-next" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition">Tiếp tục →</button>
+   </div>
+  </div>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <script>
+    const PASSWORD = '1205';
+    let currentQ = 0, score = 0, sentenceWords = [];
+
+    const questions = [
+        // SECTION 1: Vocabulary MC
+        { type:'mc', section:'Vocabulary', hint:'✏️ I use a pen.', options:['write','sing','sleep','drink'], answer:'write', explain:'Write nghĩa là viết. Hint "I use a pen." cho biết người đó sử dụng bút. Trong các đáp án, hành động phù hợp nhất với việc dùng bút là write nên đáp án đúng là write.' },
+        { type:'mc', section:'Vocabulary', hint:'😴 I am in bed.', options:['dance','sing','sleep','draw'], answer:'sleep', explain:'Sleep nghĩa là ngủ. Hint "I am in bed." cho biết người đó đang nằm trên giường nên đáp án đúng là sleep.' },
+        { type:'mc', section:'Vocabulary', hint:'🎵 I use my voice.', options:['draw','sing','drink','read'], answer:'sing', explain:'Sing nghĩa là hát. Gợi ý "I use my voice" (Tôi dùng giọng nói) → đáp án đúng là "sing".' },
+        { type:'mc', section:'Vocabulary', hint:'✏️ I make pictures.', options:['draw','sleep','eat','talk'], answer:'draw', explain:'Draw nghĩa là vẽ. Gợi ý "I make pictures" (Tôi tạo ra tranh) → đáp án đúng là "draw".' },
+        // SECTION 2: Sentence Building
+        { type:'sentence', section:'Sentence Building', intro:'Make a sentence.', words:['reading.','I\'m'], answer:'I\'m reading.', explain:'Đây là câu khẳng định ở thì hiện tại tiếp diễn. "I\'m" là dạng viết tắt của "I am". Câu đúng là: I\'m reading.' },
+        { type:'sentence', section:'Sentence Building', intro:'Make a sentence.', words:['not','I\'m','writing.'], answer:'I\'m not writing.', explain:'Đây là câu phủ định ở thì hiện tại tiếp diễn. "not" đứng sau "I\'m". Câu đúng là: I\'m not writing.' },
+        { type:'sentence', section:'Sentence Building', intro:'Make a question.', words:['you','doing?','are','What'], answer:'What are you doing?', explain:'Đây là câu hỏi với động từ to be. Ta đặt "are" trước chủ ngữ "you". Câu đúng là: What are you doing?' },
+        { type:'sentence', section:'Sentence Building', intro:'Make a sentence.', words:['Let\'s','play!'], answer:'Let\'s play!', explain:'"Let\'s play!" là lời rủ rê ai đó cùng chơi. Dấu chấm than (!) được đặt ở cuối câu. Câu đúng là: Let\'s play!' },
+        // SECTION 3: Fill in the blanks
+        { type:'mc', section:'Fill in the Blanks', stem:'He ______ reading.', options:['am','are','is','be'], answer:'is', explain:'Chủ ngữ "He" đi với "is". Cấu trúc: He/She + is + V-ing.' },
+        { type:'mc', section:'Fill in the Blanks', stem:'They ______ drinking.', options:['isn\'t','aren\'t','doesn\'t','not'], answer:'aren\'t', explain:'Chủ ngữ "They" đi với "aren\'t" (are not). They + aren\'t + V-ing.' },
+        { type:'mc', section:'Fill in the Blanks', stem:'______ she playing the guitar?', options:['Am','Are','Is','Do'], answer:'Is', explain:'Chủ ngữ "she" dùng "Is" trong câu hỏi. Is + she + V-ing?' },
+        { type:'mc', section:'Fill in the Blanks', stem:'Are they playing the guitar?', options:['Yes, they are.','Yes, they is.','No, they isn\'t.','No, they don\'t.'], answer:'Yes, they are.', explain:'Câu hỏi "Are they...?" → trả lời "Yes, they are." hoặc "No, they aren\'t."' },
+    ];
+
+    // Audio
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    function playSound(type) {
+        try {
+            const ctx = new AudioCtx();
+            if (type === 'correct') {
+                const o = ctx.createOscillator(); const g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination);
+                o.type = 'sine'; o.frequency.setValueAtTime(523, ctx.currentTime);
+                o.frequency.setValueAtTime(659, ctx.currentTime + 0.15);
+                o.frequency.setValueAtTime(784, ctx.currentTime + 0.3);
+                g.gain.setValueAtTime(0.3, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+                o.start(); o.stop(ctx.currentTime + 1);
+            } else if (type === 'wrong') {
+                const o = ctx.createOscillator(); const g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination);
+                o.type = 'sawtooth'; o.frequency.setValueAtTime(200, ctx.currentTime);
+                o.frequency.setValueAtTime(150, ctx.currentTime + 0.2);
+                g.gain.setValueAtTime(0.2, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+                o.start(); o.stop(ctx.currentTime + 0.8);
+            } else if (type === 'victory') {
+                [523,659,784,1047].forEach((f,i) => {
+                    const o = ctx.createOscillator(); const g = ctx.createGain();
+                    o.connect(g); g.connect(ctx.destination);
+                    o.type = 'sine'; o.frequency.value = f;
+                    g.gain.setValueAtTime(0.3, ctx.currentTime + i*0.2);
+                    g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i*0.2 + 0.8);
+                    o.start(ctx.currentTime + i*0.2); o.stop(ctx.currentTime + i*0.2 + 0.8);
+                });
+            }
+        } catch(e) {}
+    }
+
+    // Password
+    document.getElementById('pw-btn').addEventListener('click', checkPassword);
+    document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPassword(); });
+    function checkPassword() {
+        if (document.getElementById('pw-input').value === PASSWORD) {
+            document.getElementById('cover-page').classList.add('hidden');
+            document.getElementById('quiz-section').classList.remove('hidden');
+            renderQuestion();
+        } else {
+            document.getElementById('pw-error').classList.remove('hidden');
+        }
+    }
+
+    function updateProgress() {
+        const pct = Math.round((currentQ / 12) * 100);
+        document.getElementById('progress-bar').style.width = pct + '%';
+        document.getElementById('progress-text').textContent = `Câu ${currentQ + 1}/12`;
+        document.getElementById('progress-pct').textContent = pct + '%';
+    }
+
+    function renderQuestion() {
+        updateProgress();
+        const q = questions[currentQ];
+        const container = document.getElementById('question-container');
+        container.classList.remove('fade-in');
+        void container.offsetWidth;
+        container.classList.add('fade-in');
+
+        let html = `<div class="text-xs font-bold text-indigo-400 uppercase mb-2">${q.section} - Câu ${currentQ+1}</div>`;
+
+        if (q.type === 'mc') {
+            if (q.svg) html += q.svg;
+            if (q.hint) html += `<div class="text-2xl text-center mb-4 p-3 bg-indigo-50 rounded-xl">${q.hint}</div>`;
+            if (q.stem) html += `<p class="text-lg font-medium text-center mb-4">${q.stem}</p>`;
+            html += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">`;
+            const labels = ['A','B','C','D'];
+            q.options.forEach((opt, i) => {
+                html += `<button onclick="checkMC(this,'${opt.replace(/'/g,"\\'")}')" class="word-btn border-2 border-indigo-200 rounded-xl px-4 py-3 text-left hover:border-indigo-500 hover:bg-indigo-50 transition font-medium"><span class="text-indigo-400 font-bold mr-2">${labels[i]}.</span>${opt}</button>`;
+            });
+            html += `</div>`;
+        } else if (q.type === 'sentence') {
+            if (q.intro) html += `<p class="text-center text-lg font-medium text-gray-700 mb-4">${q.intro}</p>`;
+            html += `<p class="text-center text-gray-500 mb-4">Bấm vào từ để ghép thành câu đúng:</p>`;
+            html += `<div id="sentence-result" class="min-h-[48px] border-2 border-dashed border-indigo-300 rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center"></div>`;
+            const shuffled = [...q.words].sort(() => Math.random() - 0.5);
+            html += `<div id="word-bank" class="flex flex-wrap gap-2 justify-center mb-4">`;
+            shuffled.forEach((w,i) => {
+                html += `<button onclick="pickWord(this)" class="word-btn bg-indigo-100 text-indigo-700 font-bold px-4 py-2 rounded-xl border-2 border-indigo-200">${w}</button>`;
+            });
+            html += `</div>`;
+            html += `<div class="flex gap-2 justify-center"><button onclick="checkSentence()" class="bg-indigo-600 text-white font-bold px-6 py-2 rounded-xl hover:bg-indigo-700 transition">Check Answer</button><button onclick="resetSentence()" class="bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl hover:bg-gray-300 transition">Xóa</button></div>`;
+            sentenceWords = [];
+        }
+        container.innerHTML = html;
+    }
+
+    window.checkMC = function(btn, selected) {
+        const q = questions[currentQ];
+        const correct = selected === q.answer;
+        document.querySelectorAll('#question-container button').forEach(b => b.style.pointerEvents = 'none');
+        if (correct) { score++; btn.classList.add('bg-green-100','border-green-500'); }
+        else btn.classList.add('bg-red-100','border-red-500');
+        setTimeout(() => showPopup(correct, q), 300);
+    };
+
+    window.pickWord = function(btn) {
+        btn.classList.add('selected');
+        sentenceWords.push(btn.textContent);
+        const result = document.getElementById('sentence-result');
+        const tag = document.createElement('span');
+        tag.className = 'bg-indigo-600 text-white px-3 py-1 rounded-lg font-medium text-sm';
+        tag.textContent = btn.textContent;
+        tag.onclick = function() { tag.remove(); sentenceWords = sentenceWords.filter(w => w !== btn.textContent); btn.classList.remove('selected'); };
+        result.appendChild(tag);
+    };
+
+    window.resetSentence = function() {
+        sentenceWords = [];
+        document.getElementById('sentence-result').innerHTML = '';
+        document.querySelectorAll('#word-bank button').forEach(b => b.classList.remove('selected'));
+    };
+
+    window.checkSentence = function() {
+        const q = questions[currentQ];
+        const userAnswer = sentenceWords.join(' ');
+        const correct = userAnswer === q.answer;
+        if (correct) score++;
+        showPopup(correct, q);
+    };
+
+    function showPopup(correct, q) {
+        playSound(correct ? 'correct' : 'wrong');
+        const overlay = document.getElementById('popup-overlay');
+        const box = document.getElementById('popup-box');
+        document.getElementById('popup-icon').textContent = correct ? '✅' : '❌';
+        document.getElementById('popup-title').textContent = correct ? 'CHÍNH XÁC' : 'CHƯA CHÍNH XÁC';
+        document.getElementById('popup-title').className = `text-xl font-bold text-center mb-3 ${correct ? 'text-green-600' : 'text-red-600'}`;
+        box.className = `bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl fade-in border-t-4 ${correct ? 'border-green-500' : 'border-red-500'}`;
+        let text = q.explain;
+        if (!correct) text = `Đáp án đúng: <strong>${q.answer}</strong><br><br>${q.explain}`;
+        document.getElementById('popup-text').innerHTML = text;
+        overlay.classList.remove('hidden');
+    }
+
+    document.getElementById('popup-next').addEventListener('click', () => {
+        document.getElementById('popup-overlay').classList.add('hidden');
+        currentQ++;
+        if (currentQ >= 12) showResults();
+        else renderQuestion();
+    });
+
+    function showResults() {
+        document.getElementById('quiz-section').classList.add('hidden');
+        document.getElementById('results-section').classList.remove('hidden');
+        document.getElementById('result-score').textContent = `${score}/12`;
+        document.getElementById('result-pct').textContent = `${Math.round(score/12*100)}%`;
+        let rank = '📚 Cần luyện tập thêm';
+        if (score === 12) rank = '🏆 Xuất sắc';
+        else if (score >= 10) rank = '🌟 Rất tốt';
+        else if (score >= 7) rank = '👍 Tốt';
+        document.getElementById('result-rank').textContent = rank;
+        playSound('victory');
+        launchConfetti();
+    }
+
+    document.getElementById('retry-btn').addEventListener('click', () => {
+        currentQ = 0; score = 0;
+        document.getElementById('results-section').classList.add('hidden');
+        document.getElementById('quiz-section').classList.remove('hidden');
+        renderQuestion();
+    });
+
+    function launchConfetti() {
+        const colors = ['#6366f1','#f59e0b','#10b981','#ef4444','#ec4899','#8b5cf6'];
+        for (let i = 0; i < 60; i++) {
+            const el = document.createElement('div');
+            el.className = 'confetti-piece';
+            el.style.left = Math.random()*100 + 'vw';
+            el.style.background = colors[Math.floor(Math.random()*colors.length)];
+            el.style.animationDelay = Math.random()*2 + 's';
+            el.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 5000);
+        }
+    }
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0fc5783679a1e3f',t:'MTc4MjE0MjcyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
