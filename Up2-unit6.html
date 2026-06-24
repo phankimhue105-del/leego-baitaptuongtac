@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 6: Home Quiz</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/editing_sdk.js"></script>
+  <style>
+    body { font-family: 'Libre Franklin', sans-serif; }
+    .card-shadow { box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+    .progress-bar { transition: width 0.5s ease; }
+    .option-btn { transition: all 0.2s ease; }
+    .option-btn:hover:not(:disabled) { transform: scale(1.03); }
+    .option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+    .word-chip { transition: all 0.2s ease; cursor: pointer; }
+    .word-chip:hover:not(.used) { transform: scale(1.05); }
+    .word-chip.used { opacity: 0.4; cursor: not-allowed; }
+    .confetti { position: fixed; top: -10px; animation: fall linear forwards; pointer-events: none; z-index: 1000; }
+    @keyframes fall { to { top: 110vh; transform: rotate(720deg); } }
+    .fade-in { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    #global-header,
+    #global-footer {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: flex !important;
+    }
+    #global-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      background: #ffffff;
+      color: #000000;
+      border-bottom: 2px solid #d1d5db;
+      z-index: 99999;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    #global-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      background: #ffffff;
+      color: #000000;
+      border-top: 2px solid #d1d5db;
+      z-index: 99999;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen">
+  <!-- REAL HEADER -->
+  <header id="global-header">
+   <div class="header-left">
+    Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585
+   </div>
+   <div class="header-right">
+    Up 2 - Unit 6
+   </div>
+  </header><!-- REAL FOOTER -->
+  <footer id="global-footer">
+   <div class="footer-left">
+    Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585
+   </div>
+   <div class="footer-right">
+    Up 2 - Unit 6
+   </div>
+  </footer>
+  <main class="pt-20 pb-20 px-4 max-w-2xl mx-auto w-full"><!-- COVER PAGE -->
+   <div id="cover-page" class="flex flex-col items-center justify-center fade-in" style="min-height: calc(80 * min(var(--vh, 1vh), 1vh))">
+    <div data-template-id="cover-card" class="canva-card card-shadow rounded-3xl p-8 md:p-12 text-center w-full max-w-md">
+     <h1 data-template-id="cover-title" class="canva-text mb-2" style="font-size:56px; font-weight:800; color:#7c3aed; visibility:visible; opacity:1;">Unit 6: Home</h1>
+     <p data-template-id="cover-subtitle" class="canva-text text-lg mb-6"></p>
+     <p data-template-id="cover-prompt" class="canva-text mb-3 font-semibold"></p><input id="password-input" type="password" class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 text-center text-xl mb-3 focus:outline-none focus:border-blue-400" placeholder="Nhập mật khẩu"> <button id="start-btn" data-template-id="start-button" class="canva-button w-full py-3 rounded-xl text-xl font-bold mt-2"></button>
+     <p id="pw-error" class="text-red-500 font-semibold mt-3 hidden">❌ Mật khẩu chưa đúng.</p>
+    </div>
+   </div><!-- QUIZ PAGE -->
+   <div id="quiz-page" class="hidden fade-in">
+    <div class="mb-4">
+     <div class="flex justify-between text-sm font-semibold mb-1"><span id="q-counter"></span> <span id="q-score"></span>
+     </div>
+     <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+      <div id="progress-bar" class="progress-bar h-full rounded-full" style="width:0%; background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6, #3b82f6);"></div>
+     </div>
+    </div>
+    <div id="question-card" data-template-id="question-card" class="canva-card card-shadow rounded-3xl p-6 md:p-8"></div>
+   </div><!-- RESULT PAGE -->
+   <div id="result-page" class="hidden fade-in flex flex-col items-center justify-center" style="min-height: calc(70 * min(var(--vh, 1vh), 1vh))">
+    <div data-template-id="result-card" class="canva-card card-shadow rounded-3xl p-8 md:p-12 text-center w-full max-w-md">
+     <p class="text-3xl mb-2">🎉</p>
+     <h2 data-template-id="result-title" class="canva-text text-2xl font-extrabold mb-4">HOÀN THÀNH BÀI KIỂM TRA</h2>
+     <p data-template-id="result-score-label" class="canva-text text-lg font-semibold mb-1">Điểm số của em:</p>
+     <p id="result-score" class="text-4xl font-extrabold mb-2" style="color:#8b5cf6"></p>
+     <p data-template-id="result-percent-label" class="canva-text font-semibold mb-1">Tỷ lệ đúng:</p>
+     <p id="result-percent" class="text-2xl font-bold mb-4" style="color:#3b82f6"></p>
+     <div id="result-message" class="text-lg font-semibold p-4 rounded-xl bg-yellow-50 mb-4"></div><button id="retry-btn" data-template-id="retry-button" class="canva-button w-full py-4 rounded-2xl text-xl font-bold">🔄 LÀM LẠI</button>
+    </div>
+   </div>
+  </main>
+  <script>
+    const PASS = '1205';
+    let score = 0, current = 0;
+    const questions = [
+      { type:'mc', illustration:'table', question:'What is it?', options:['clock','sofa','bed','table'], correct:3, explanation:'Table nghĩa là cái bàn. Trong tranh là một cái bàn.' },
+      { type:'mc', illustration:'clock', question:'What is it?', options:['computer','bookshelf','clock','table'], correct:2, explanation:'Clock nghĩa là đồng hồ.' },
+      { type:'mc', hint:'📚 We put books on it.', question:'What is it?', options:['computer','bookshelf','sofa','clock'], correct:1, explanation:'Bookshelf nghĩa là giá sách.' },
+      { type:'mc', hint:'💻 We use it to study and play games.', question:'What is it?', options:['computer','clock','table','sofa'], correct:0, explanation:'Computer nghĩa là máy tính.' },
+      { type:'build', sentence:'How many pencils are there?', words:['there','pencils','many','are','?','How'], explanation:'"How many" dùng để hỏi số lượng.\nCâu này có nghĩa là: "Có bao nhiêu chiếc bút chì?"', instruction:'Reorder the words' },
+      { type:'build', sentence:'There are 24 pencils.', words:['24','pencils','There','.','are'], explanation:'Cấu trúc: There are + số lượng + danh từ số nhiều.', instruction:'Reorder the words' },
+      { type:'build', sentence:'How many books are there?', words:['books','are','many','there','How','?'], explanation:'"How many" dùng để hỏi số lượng.', instruction:'Reorder the words' },
+      { type:'build', sentence:'There are eight red pencils.', words:['red','pencils','are','There','.','eight'], explanation:'There are + number + color + noun.', instruction:'Reorder the words' },
+      { type:'mc', question:'How many books ______ there?', options:['is','am','are','be'], correct:2, explanation:'Books là danh từ số nhiều nên dùng are.' },
+      { type:'mc', question:'There ______ 24 pencils.', options:['am','is','are','be'], correct:2, explanation:'Pencils là danh từ số nhiều nên dùng are.' },
+      { type:'mc', question:'How many ______ are there?', options:['pencil','pencils','a pencil','an pencil'], correct:1, explanation:'Sau How many luôn dùng danh từ số nhiều.' },
+      { type:'mc', question:'There are eight ______ pencils.', options:['read','blueing','reds','red'], correct:3, explanation:'Tính từ chỉ màu sắc đứng trước danh từ và không thêm s/es.' },
+    ];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playCorrect(){
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.connect(g);g.connect(audioCtx.destination);o.type='sine';
+      o.frequency.setValueAtTime(523,audioCtx.currentTime);
+      o.frequency.setValueAtTime(659,audioCtx.currentTime+0.2);
+      o.frequency.setValueAtTime(784,audioCtx.currentTime+0.4);
+      g.gain.setValueAtTime(0.3,audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+2);
+      o.start();o.stop(audioCtx.currentTime+2);
+    }
+    function playWrong(){
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.connect(g);g.connect(audioCtx.destination);o.type='sawtooth';
+      o.frequency.setValueAtTime(200,audioCtx.currentTime);
+      o.frequency.setValueAtTime(150,audioCtx.currentTime+0.3);
+      g.gain.setValueAtTime(0.2,audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+2);
+      o.start();o.stop(audioCtx.currentTime+2);
+    }
+    function playCelebration(){
+      [523,659,784,1047].forEach((f,i)=>{
+        const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.connect(g);g.connect(audioCtx.destination);o.type='sine';
+        o.frequency.setValueAtTime(f,audioCtx.currentTime+i*0.3);
+        g.gain.setValueAtTime(0.3,audioCtx.currentTime+i*0.3);
+        g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+i*0.3+1);
+        o.start(audioCtx.currentTime+i*0.3);o.stop(audioCtx.currentTime+3);
+      });
+    }
+
+    function getIllustration(name){
+      const svgs = {
+        table:'<svg viewBox="0 0 120 120" width="120" height="120"><rect x="20" y="35" width="80" height="18" rx="2" fill="#8B4513" stroke="#5C2E0F" stroke-width="2"/><rect x="25" y="53" width="10" height="45" rx="2" fill="#654321" stroke="#3E1F0F" stroke-width="1.5"/><rect x="85" y="53" width="10" height="45" rx="2" fill="#654321" stroke="#3E1F0F" stroke-width="1.5"/><rect x="40" y="53" width="8" height="45" rx="2" fill="#654321" stroke="#3E1F0F" stroke-width="1.5"/><rect x="72" y="53" width="8" height="45" rx="2" fill="#654321" stroke="#3E1F0F" stroke-width="1.5"/></svg>',
+        clock:'<svg viewBox="0 0 120 120" width="120" height="120"><circle cx="60" cy="60" r="48" fill="#fcd34d" stroke="#92400e" stroke-width="4"/><line x1="60" y1="60" x2="60" y2="28" stroke="#1f2937" stroke-width="3" stroke-linecap="round"/><line x1="60" y1="60" x2="78" y2="60" stroke="#1f2937" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="60" r="5" fill="#1f2937"/></svg>'
+      };
+      return svgs[name] || '';
+    }
+
+    document.getElementById('start-btn').addEventListener('click',()=>{
+      audioCtx.resume();
+      if(document.getElementById('password-input').value===PASS){
+        document.getElementById('cover-page').classList.add('hidden');
+        document.getElementById('quiz-page').classList.remove('hidden');
+        renderQuestion();
+      } else {
+        document.getElementById('pw-error').classList.remove('hidden');
+      }
+    });
+    document.getElementById('password-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('start-btn').click();}});
+
+    function renderQuestion(){
+      const q=questions[current];
+      const card=document.getElementById('question-card');
+      document.getElementById('q-counter').textContent='Câu '+(current+1)+' / 12';
+      document.getElementById('q-score').textContent='Điểm: '+score;
+      document.getElementById('progress-bar').style.width=((current)/12*100)+'%';
+
+      let html='<div class="fade-in">';
+      if(q.illustration) html+='<div class="flex justify-center mb-4">'+getIllustration(q.illustration)+'</div>';
+      if(q.hint) html+='<p class="text-center text-lg mb-3 font-semibold">'+(q.hint || '')+'</p>';
+      if(q.instruction) html+='<p class="text-center text-md mb-3 font-semibold text-blue-600">'+(q.instruction || '')+'</p>';
+      html+='<p class="text-xl font-bold mb-4 text-center">'+(q.question || '')+'</p>';
+
+      if(q.type==='mc'){
+        const labels=['A','B','C','D'];
+        html+='<div class="grid gap-3">';
+        q.options.forEach((opt,i)=>{
+          html+='<button class="option-btn text-left px-5 py-3 rounded-xl border-2 border-gray-200 font-semibold text-lg bg-white hover:border-blue-400" onclick="checkMC('+i+')" id="opt-'+i+'">'+labels[i]+'. '+(opt || '')+'</button>';
+        });
+        html+='</div>';
+      } else {
+        html+='<div id="answer-area" class="min-h-[50px] border-2 border-dashed border-gray-300 rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center"></div>';
+        html+='<div id="word-bank" class="flex flex-wrap gap-2 justify-center mb-4">';
+        (q.words || []).forEach((w,i)=>{
+          html+='<span class="word-chip px-4 py-2 rounded-xl font-semibold text-lg bg-blue-100 border-2 border-blue-300" data-idx="'+i+'" onclick="selectWord(this)">'+(w || '')+'</span>';
+        });
+        html+='</div><button id="submit-build" class="w-full py-3 rounded-xl font-bold text-lg text-white" style="background:#8b5cf6" onclick="checkBuild()">SUBMIT</button>';
+      }
+      html+='<div id="feedback" class="mt-4 hidden"></div></div>';
+      card.innerHTML=html;
+    }
+
+    let selectedWords=[];
+    window.selectWord=function(el){
+      if(el.classList.contains('used'))return;
+      el.classList.add('used');
+      const w=el.textContent || '';
+      selectedWords.push({word:w,idx:el.dataset.idx});
+      const area=document.getElementById('answer-area');
+      const chip=document.createElement('span');
+      chip.className='px-3 py-1 rounded-lg font-semibold bg-purple-100 border border-purple-300 cursor-pointer';
+      chip.textContent=w;
+      chip.onclick=()=>{
+        chip.remove();
+        el.classList.remove('used');
+        selectedWords=selectedWords.filter(s=>s.idx!==el.dataset.idx);
+      };
+      area.appendChild(chip);
+    };
+
+    window.checkBuild=function(){
+      const q=questions[current];
+      const built=selectedWords.length>0?selectedWords.map(s=>s.word||'').join(' '):'';
+      const normalize=s=>s.replace(/\s+([?.!,])/g,'$1');
+      const isCorrect=built.length>0&&normalize(built)===normalize(q.sentence||'');
+      showFeedback(isCorrect,q.explanation||'');
+      const sb=document.getElementById('submit-build');
+      if(sb)sb.disabled=true;
+      document.querySelectorAll('.word-chip').forEach(c=>{c.classList.add('used');c.onclick=null;});
+      document.querySelectorAll('#answer-area span').forEach(c=>c.onclick=null);
+    };
+
+    window.checkMC=function(i){
+      const q=questions[current];
+      const isCorrect=i===q.correct;
+      document.querySelectorAll('.option-btn').forEach((btn,idx)=>{
+        btn.disabled=true;
+        if(idx===q.correct) btn.style.background='#bbf7d0';
+        else if(idx===i&&!isCorrect) btn.style.background='#fecaca';
+      });
+      showFeedback(isCorrect,q.explanation||'');
+    };
+
+    function showFeedback(correct,explanation){
+      if(correct){score++;playCorrect();}else{playWrong();}
+      document.getElementById('q-score').textContent='Điểm: '+score;
+      const fb=document.getElementById('feedback');
+      fb.classList.remove('hidden');
+      fb.innerHTML='<div class="p-4 rounded-xl '+(correct?'bg-green-50 border border-green-300':'bg-red-50 border border-red-300')+' mb-3"><p class="font-bold text-lg mb-2">'+(correct?'✅ Chính xác':'❌ Chưa chính xác')+'</p><p class="whitespace-pre-line">'+(explanation||'')+'</p></div><button class="w-full py-3 rounded-xl font-bold text-lg text-white" style="background:#3b82f6" onclick="nextQ()">Câu tiếp theo</button>';
+    }
+
+    window.nextQ=function(){
+      current++;selectedWords=[];
+      if(current>=12){showResult();}else{renderQuestion();}
+    };
+
+    function showResult(){
+      document.getElementById('quiz-page').classList.add('hidden');
+      document.getElementById('result-page').classList.remove('hidden');
+      document.getElementById('result-score').textContent=score+' / 12';
+      document.getElementById('result-percent').textContent=Math.round(score/12*100)+'%';
+      let msg='';
+      if(score===12) msg='🌟 Xuất sắc! Em đã nắm rất chắc kiến thức Unit 6.';
+      else if(score>=10) msg='🎉 Rất tốt! Em chỉ cần luyện thêm một chút nữa.';
+      else if(score>=7) msg='👍 Khá tốt! Hãy xem lại những câu sai nhé.';
+      else msg='📚 Em cần ôn tập thêm từ vựng và mẫu câu của Unit 6.';
+      document.getElementById('result-message').textContent=msg;
+      playCelebration();launchConfetti();
+      document.getElementById('progress-bar').style.width='100%';
+    }
+
+    document.getElementById('retry-btn').addEventListener('click',()=>{
+      score=0;current=0;selectedWords=[];
+      document.getElementById('result-page').classList.add('hidden');
+      document.getElementById('cover-page').classList.remove('hidden');
+      document.getElementById('password-input').value='';
+      document.getElementById('pw-error').classList.add('hidden');
+    });
+
+    function launchConfetti(){
+      const colors=['#f59e0b','#ef4444','#8b5cf6','#3b82f6','#10b981','#ec4899'];
+      for(let i=0;i<60;i++){
+        const c=document.createElement('div');c.className='confetti';
+        c.style.left=Math.random()*100+'vw';
+        c.style.width=c.style.height=Math.random()*10+6+'px';
+        c.style.background=colors[Math.floor(Math.random()*colors.length)];
+        c.style.borderRadius=Math.random()>0.5?'50%':'0';
+        c.style.animationDuration=(Math.random()*2+2)+'s';
+        c.style.animationDelay=Math.random()*1.5+'s';
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(),5000);
+      }
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a10b9099a6c4aeb9',t:'MTc4MjMwMjM1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
