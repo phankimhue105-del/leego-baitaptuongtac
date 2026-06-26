@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 2: In Town</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/editing_sdk.js"></script>
+  <style>
+        * { font-family: 'DM Sans', sans-serif; }
+        .vh-full { min-height: calc(100 * min(var(--vh, 1vh), 1vh)); }
+        .quiz-header, .quiz-footer { position: fixed; left: 0; right: 0; z-index: 100; }
+        .quiz-header { top: 0; }
+        .quiz-footer { bottom: 0; }
+        .screen { display: none; }
+        .screen.active { display: flex; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+        @keyframes pop { 0%{transform:scale(0.5);opacity:0} 100%{transform:scale(1);opacity:1} }
+        @keyframes confetti-fall { 0%{transform:translateY(-100%) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+        .shake { animation: shake 0.4s ease; }
+        .pop { animation: pop 0.3s ease forwards; }
+        .confetti-piece { position:fixed; width:10px; height:10px; animation: confetti-fall 3s ease-out forwards; z-index:200; }
+        .word-btn { transition: all 0.2s; }
+        .word-btn:disabled { opacity:0.4; transform:scale(0.9); }
+        .choice-btn { transition: all 0.15s; }
+        .choice-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+        .progress-bar { transition: width 0.5s ease; }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="w-full min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
+  <!-- Header -->
+  <header class="quiz-header bg-white border-b-2 border-blue-500 shadow-sm px-4 py-2">
+   <div class="max-w-4xl mx-auto flex justify-between items-center text-sm">
+    <div>
+     <span data-template-id="header-name" class="canva-text font-bold text-blue-700">Trung tâm Anh ngữ LeeGo</span> <br><span data-template-id="header-hotline" class="canva-text text-gray-600">Hotline: 0988.526.585</span>
+    </div>
+    <div data-template-id="header-unit" class="canva-text font-bold text-orange-600 text-right">
+     Up 2 - Unit 2
+    </div>
+   </div>
+  </header><!-- Footer -->
+  <footer class="quiz-footer bg-white border-t-2 border-blue-500 shadow-sm px-4 py-2">
+   <div class="max-w-4xl mx-auto flex justify-between items-center text-sm">
+    <div>
+     <span data-template-id="footer-name" class="canva-text font-bold text-blue-700">Trung tâm Anh ngữ LeeGo</span> <br><span data-template-id="footer-hotline" class="canva-text text-gray-600">Hotline: 0988.526.585</span>
+    </div>
+    <div data-template-id="footer-unit" class="canva-text font-bold text-orange-600 text-right">
+     Up 2 - Unit 2
+    </div>
+   </div>
+  </footer><!-- Cover Page -->
+  <div id="cover-screen" class="screen active flex-col items-center justify-center vh-full pt-16 pb-16 px-4">
+   <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 text-center max-w-md w-full">
+    <h1 data-template-id="cover-title" class="canva-text text-3xl md:text-4xl font-extrabold text-blue-700 mb-2">UNIT 2: IN TOWN</h1>
+    <p data-template-id="cover-subtitle" class="canva-text text-lg text-gray-500 mb-8">Cambridge Starters Practice Quiz</p>
+    <p data-template-id="cover-password-label" class="canva-text text-sm text-gray-600 mb-3">Nhập mật khẩu để bắt đầu:</p><input id="password-input" type="password" class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 text-center text-lg focus:border-blue-500 focus:outline-none mb-3" placeholder="Nhập mật khẩu...">
+    <p id="password-error" class="text-red-500 font-bold text-sm mb-3 hidden">Sai mật khẩu!</p><button id="unlock-btn" data-template-id="cover-unlock-btn" class="canva-button w-full bg-blue-600 text-white font-bold py-3 rounded-xl text-lg hover:bg-blue-700 transition">🔓 Mở khóa</button>
+   </div>
+  </div><!-- Quiz Screen -->
+  <div id="quiz-screen" class="screen flex-col items-center vh-full pt-16 pb-16 px-4">
+   <div class="w-full max-w-2xl mt-4">
+    <!-- Progress -->
+    <div class="mb-4">
+     <div class="flex justify-between text-sm font-bold text-gray-600 mb-1">
+      <span id="progress-text">1 / 12</span> <span id="part-label">PART 1: Vocabulary</span>
+     </div>
+     <div class="w-full bg-gray-200 rounded-full h-3">
+      <div id="progress-fill" class="progress-bar bg-gradient-to-r from-blue-500 to-green-400 h-3 rounded-full" style="width:8.33%"></div>
+     </div>
+    </div><!-- Question Area -->
+    <div id="question-area" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 min-h-[350px] flex flex-col"></div>
+   </div>
+  </div><!-- Result Screen -->
+  <div id="result-screen" class="screen flex-col items-center justify-center vh-full pt-16 pb-16 px-4">
+   <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-10 text-center max-w-lg w-full">
+    <h2 class="text-4xl mb-2">🎉</h2>
+    <h2 data-template-id="result-congrats" class="canva-text text-2xl font-extrabold text-green-600 mb-4"></h2>
+    <div id="result-score" class="text-5xl font-extrabold text-blue-700 mb-2"></div>
+    <div id="result-percent" class="text-lg text-gray-500 mb-2"></div>
+    <div id="result-perf" class="text-xl font-bold mb-6"></div>
+    <div id="result-details" class="text-left text-sm mb-6 max-h-48 overflow-y-auto"></div><button id="replay-btn" data-template-id="replay-btn" class="canva-button w-full bg-orange-500 text-white font-bold py-3 rounded-xl text-lg hover:bg-orange-600 transition">🔄 Làm lại</button>
+   </div>
+  </div>
+  <script>
+    const PASS = "1205";
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTone(freq, dur, type='sine') {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type; o.frequency.value = freq;
+        g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + dur);
+    }
+    function playCorrect() { playTone(523,0.15); setTimeout(()=>playTone(659,0.15),150); setTimeout(()=>playTone(784,0.3),300); }
+    function playIncorrect() { playTone(200,0.3,'square'); setTimeout(()=>playTone(150,0.4,'square'),300); }
+    function playCelebration() { [0,200,400,600,800].forEach((d,i)=>setTimeout(()=>playTone(400+i*100,0.2),d)); }
+
+    const questions = [
+        // Part 1
+        {part:"PART 1: Vocabulary", type:"mc", image:"cook", q:"Who is he?", choices:["doctor","cook","pilot","teacher"], answer:1, explain:"Đáp án đúng là \"cook\" vì tranh minh họa là một đầu bếp đang đội mũ đầu bếp và mặc đồng phục nấu ăn."},
+        {part:"PART 1: Vocabulary", type:"mc", image:"hospital", q:"What place is this?", choices:["restaurant","school","hospital","home"], answer:2, explain:"Đáp án đúng là \"hospital\" vì đây là bệnh viện, nơi bác sĩ và y tá làm việc."},
+        {part:"PART 1: Vocabulary", type:"mc", hint:"\"I help sick people.\"", q:"Who am I?", choices:["teacher","doctor","firefighter","bus driver"], answer:1, explain:"\"I help sick people.\" nghĩa là \"Tôi giúp những người bị bệnh.\" Người làm công việc này là doctor."},
+        {part:"PART 1: Vocabulary", type:"mc", hint:"\"I drive children to school.\"", q:"Who am I?", choices:["pilot","cook","bus driver","police officer"], answer:2, explain:"\"I drive children to school.\" nghĩa là \"Tôi lái xe chở học sinh đến trường.\" Đó là bus driver."},
+        // Part 2
+        {part:"PART 2: Click to Build", type:"build", words:["he","is","a","doctor","."], answer:"He is a doctor.", explain:"He + is + a + doctor. \"He\" đi với \"is\"."},
+        {part:"PART 2: Click to Build", type:"build", words:["she","isn't","a","nurse","."], answer:"She isn't a nurse.", explain:"She + isn't + a + nurse. \"isn't\" là dạng phủ định của \"is\"."},
+        {part:"PART 2: Click to Build", type:"build", words:["are","they","police","officers","?"], answer:"Are they police officers?", explain:"Câu hỏi Yes/No với \"they\" bắt đầu bằng \"Are\"."},
+        {part:"PART 2: Click to Build", type:"build", words:["he","at","is","the","hospital","."], answer:"He is at the hospital.", explain:"Cấu trúc: He is at the hospital. Dùng \"at\" để chỉ địa điểm."},
+        // Part 3
+        {part:"PART 3: Multiple Choice", type:"mc", q:"_____ he a teacher?", choices:["Am","Is","Are","Be"], answer:1, explain:"\"He\" luôn đi với \"is\"."},
+        {part:"PART 3: Multiple Choice", type:"mc", q:"They _____ firefighters.", choices:["is","am","are","be"], answer:2, explain:"\"They\" luôn đi với \"are\"."},
+        {part:"PART 3: Multiple Choice", type:"mc", q:"Where's the doctor? He is _____ the hospital.", choices:["on","in","at","under"], answer:2, explain:"Dùng \"at the hospital\" để chỉ vị trí."},
+        {part:"PART 3: Multiple Choice", type:"mc", q:"May I borrow your phone?", choices:["Goodbye.","Sure. Here you are.","Nice to meet you.","See you."], answer:1, explain:"\"May I borrow your phone?\" là lời xin phép. Đáp lại lịch sự: Sure. Here you are."},
+    ];
+
+    let current = 0, score = 0, answers = [];
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    // Cover
+    document.getElementById('unlock-btn').addEventListener('click', ()=>{
+        audioCtx.resume();
+        const val = document.getElementById('password-input').value;
+        if(val===PASS){
+            document.getElementById('password-error').classList.add('hidden');
+            showScreen('quiz-screen');
+            renderQuestion();
+        } else {
+            const err = document.getElementById('password-error');
+            err.classList.remove('hidden');
+            err.classList.add('shake');
+            setTimeout(()=>err.classList.remove('shake'),500);
+        }
+    });
+    document.getElementById('password-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('unlock-btn').click();});
+
+    function drawCook() {
+        return `<svg viewBox="0 0 120 160" width="120" class="mx-auto mb-3"><!-- Chef's Tall White Hat --><ellipse cx="60" cy="18" rx="28" ry="6" fill="#fff" stroke="#333" stroke-width="2"/><path d="M32 18 Q32 35 60 45 Q88 35 88 18" fill="#fff" stroke="#333" stroke-width="2"/><ellipse cx="60" cy="45" rx="26" ry="8" fill="#fff" stroke="#333" stroke-width="2"/><path d="M34 45 L34 50 Q34 55 60 60 Q86 55 86 50 L86 45" fill="#f3f4f6" stroke="#333" stroke-width="2"/><!-- Head --><circle cx="60" cy="75" r="18" fill="#fdbcb4" stroke="#333" stroke-width="2"/><circle cx="55" cy="72" r="2.5" fill="#333"/><circle cx="65" cy="72" r="2.5" fill="#333"/><path d="M55 78 Q60 82 65 78" stroke="#333" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M58 84 Q60 85 62 84" stroke="#f97316" fill="none" stroke-width="1.5" stroke-linecap="round"/><!-- White Chef Coat/Uniform --><rect x="38" y="94" width="44" height="50" rx="6" fill="#fff" stroke="#333" stroke-width="2.5"/><line x1="60" y1="94" x2="60" y2="144" stroke="#333" stroke-width="1.5"/><!-- Black Buttons --><circle cx="56" cy="105" r="2" fill="#333"/><circle cx="56" cy="118" r="2" fill="#333"/><circle cx="56" cy="131" r="2" fill="#333"/><circle cx="64" cy="105" r="2" fill="#333"/><circle cx="64" cy="118" r="2" fill="#333"/><circle cx="64" cy="131" r="2" fill="#333"/><!-- White Apron Bottom --><path d="M42 144 L42 155 Q42 158 45 158 L75 158 Q78 158 78 155 L78 144" fill="#fff" stroke="#333" stroke-width="2"/></svg>`;
+    }
+    function drawHospital() {
+        return `<svg viewBox="0 0 120 100" width="140" class="mx-auto mb-3"><rect x="20" y="30" width="80" height="60" rx="4" fill="#e0f0ff" stroke="#333" stroke-width="2"/><rect x="50" y="10" width="20" height="25" rx="2" fill="#fff" stroke="#333" stroke-width="2"/><line x1="60" y1="14" x2="60" y2="30" stroke="red" stroke-width="3"/><line x1="53" y1="22" x2="67" y2="22" stroke="red" stroke-width="3"/><rect x="50" y="65" width="20" height="25" fill="#87ceeb" stroke="#333" stroke-width="1.5"/><rect x="25" y="40" width="12" height="12" fill="#87ceeb" stroke="#333" stroke-width="1"/><rect x="83" y="40" width="12" height="12" fill="#87ceeb" stroke="#333" stroke-width="1"/></svg>`;
+    }
+
+    function renderQuestion() {
+        const q = questions[current];
+        const area = document.getElementById('question-area');
+        document.getElementById('progress-text').textContent = `${current+1} / 12`;
+        document.getElementById('part-label').textContent = q.part;
+        document.getElementById('progress-fill').style.width = `${((current+1)/12)*100}%`;
+
+        let html = '';
+        if(q.image==='cook') html += drawCook();
+        if(q.image==='hospital') html += drawHospital();
+        if(q.hint) html += `<p class="text-center italic text-gray-500 mb-3 text-lg">${q.hint}</p>`;
+        html += `<h3 class="text-xl font-bold text-gray-800 mb-5 text-center">${q.q}</h3>`;
+        
+        // Show punctuation hint for build questions
+        if(q.type==='build'){
+            const punctuation = q.answer.endsWith('?') ? '?' : '.';
+            html += `<p class="text-center text-2xl font-bold text-blue-600 mb-5">${punctuation}</p>`;
+        }
+
+        if(q.type==='mc'){
+            html += '<div class="grid grid-cols-1 gap-3">';
+            const labels = ['A','B','C','D'];
+            q.choices.forEach((c,i)=>{
+                html += `<button class="choice-btn text-left px-5 py-3 rounded-xl border-2 border-gray-200 font-medium text-gray-700 hover:border-blue-400 bg-gray-50" onclick="selectAnswer(${i})"><span class="font-bold text-blue-600 mr-2">${labels[i]}.</span>${c}</button>`;
+            });
+            html += '</div>';
+        } else {
+            // build sentence
+            const shuffled = [...q.words].sort(()=>Math.random()-0.5).filter(w => w !== undefined && w !== null && w !== '');
+            html += `<div id="sentence-display" class="min-h-[48px] border-2 border-dashed border-blue-300 rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center text-lg font-medium text-blue-800"></div>`;
+            html += `<div id="word-bank" class="flex flex-wrap gap-2 justify-center mb-4">`;
+            shuffled.forEach((w,i)=>{
+                const isPunctuation = w === '.' || w === '?';
+                const btnClass = isPunctuation ? 'px-3 py-2 text-xl' : 'px-4 py-2';
+                html += `<button class="word-btn ${btnClass} bg-orange-100 border-2 border-orange-300 rounded-lg font-bold text-orange-700 hover:bg-orange-200" onclick="selectWord(this, '${w.replace(/'/g, "\\'")}')">${w}</button>`;
+            });
+            html += `</div>`;
+            html += `<div class="flex gap-3 justify-center"><button class="px-4 py-2 bg-gray-200 rounded-lg font-bold text-gray-600 hover:bg-gray-300" onclick="resetBuild()">🔄 Reset</button><button class="px-4 py-2 bg-green-500 text-white rounded-lg font-bold hover:bg-green-600" onclick="checkBuild()">✓ Kiểm tra</button></div>`;
+        }
+        area.innerHTML = html;
+    }
+
+    let selectedWords = [];
+    let wordBtnMap = {}; // Track buttons by word for reset functionality
+    
+    function selectWord(btn, word) {
+        btn.disabled = true;
+        selectedWords.push(word);
+        const display = document.getElementById('sentence-display');
+        const isPunctuation = word === '.' || word === '?';
+        let displayText = selectedWords.join(' ');
+        // Remove space before punctuation
+        displayText = displayText.replace(/\s+([.?])/g, '$1');
+        display.textContent = displayText;
+    }
+    
+    function resetBuild() {
+        selectedWords = [];
+        document.getElementById('sentence-display').textContent = '';
+        // Re-enable all buttons by re-rendering them
+        document.querySelectorAll('.word-btn').forEach(b => b.disabled = false);
+    }
+    
+    function checkBuild() {
+        if(selectedWords.length===0) return;
+        const q = questions[current];
+        const correct = q.answer;
+        
+        // Normalize: remove punctuation and convert to lowercase for comparison
+        const normalize = s => s.replace(/[?.!]/g,'').toLowerCase().trim();
+        let userSentence = selectedWords.join(' ');
+        // Remove space before punctuation for comparison
+        userSentence = userSentence.replace(/\s+([.?])/g, '$1');
+        userSentence = normalize(userSentence);
+        const correctSentence = normalize(correct);
+        
+        if(userSentence === correctSentence) {
+            handleFeedback(true);
+        } else {
+            handleFeedback(false);
+        }
+    }
+
+    function selectAnswer(idx) {
+        const q = questions[current];
+        handleFeedback(idx === q.answer);
+    }
+
+    function handleFeedback(isCorrect) {
+        const q = questions[current];
+        if(isCorrect){ score++; answers.push({i:current,correct:true}); playCorrect(); }
+        else { answers.push({i:current,correct:false}); playIncorrect(); }
+
+        const area = document.getElementById('question-area');
+        const icon = isCorrect ? '✅' : '❌';
+        const text = isCorrect ? 'Chính xác!' : 'Chưa chính xác';
+        const color = isCorrect ? 'text-green-600' : 'text-red-600';
+        const bg = isCorrect ? 'bg-green-50' : 'bg-red-50';
+
+        // Display completed sentence with proper punctuation if it's a build question
+        let sentenceDisplay = '';
+        if(q.type === 'build' && isCorrect) {
+            sentenceDisplay = `<div class="mb-4 p-3 bg-blue-50 border-2 border-blue-300 rounded-xl"><p class="text-center text-lg font-semibold text-blue-800">${q.answer}</p></div>`;
+        }
+
+        area.innerHTML = `
+            <div class="flex-1 flex flex-col items-center justify-center pop">
+                <div class="text-5xl mb-2">${icon}</div>
+                <h3 class="text-2xl font-extrabold ${color} mb-4">${text}</h3>
+                ${sentenceDisplay}
+                <div class="${bg} rounded-xl p-4 w-full text-gray-700 text-sm leading-relaxed">${q.explain}</div>
+                <button class="mt-6 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700" onclick="nextQuestion()">${current<11?'Tiếp theo →':'Xem kết quả'}</button>
+            </div>`;
+    }
+
+    function nextQuestion() {
+        current++;
+        if(current>=12){ showResults(); return; }
+        selectedWords = [];
+        renderQuestion();
+    }
+
+    function showResults() {
+        showScreen('result-screen');
+        playCelebration();
+        spawnConfetti();
+        const pct = Math.round(score/12*100);
+        let perf = '';
+        if(score===12) perf='Xuất sắc! 🌟';
+        else if(score>=10) perf='Rất tốt! 👏';
+        else if(score>=7) perf='Tốt! 👍';
+        else if(score>=4) perf='Cần luyện thêm. 📖';
+        else perf='Hãy cố gắng nhé! 💪';
+
+        document.getElementById('result-score').textContent = `${score} / 12`;
+        document.getElementById('result-percent').textContent = `Tỷ lệ: ${pct}%`;
+        document.getElementById('result-perf').textContent = perf;
+
+        let details = '<p class="font-bold text-green-600 mb-1">✅ Câu đúng:</p><p class="mb-3">';
+        const corrects = answers.filter(a=>a.correct).map(a=>`Câu ${a.i+1}`);
+        details += corrects.length ? corrects.join(', ') : 'Không có';
+        details += '</p><p class="font-bold text-red-600 mb-1">❌ Câu sai:</p><p>';
+        const wrongs = answers.filter(a=>!a.correct).map(a=>`Câu ${a.i+1}`);
+        details += wrongs.length ? wrongs.join(', ') : 'Không có';
+        details += '</p>';
+        document.getElementById('result-details').innerHTML = details;
+    }
+
+    function spawnConfetti() {
+        const colors = ['#f59e0b','#3b82f6','#10b981','#ef4444','#8b5cf6','#ec4899'];
+        for(let i=0;i<40;i++){
+            const el = document.createElement('div');
+            el.className = 'confetti-piece';
+            el.style.left = Math.random()*100+'%';
+            el.style.top = '-10px';
+            el.style.background = colors[Math.floor(Math.random()*colors.length)];
+            el.style.animationDelay = Math.random()*2+'s';
+            el.style.borderRadius = Math.random()>0.5?'50%':'0';
+            document.body.appendChild(el);
+            setTimeout(()=>el.remove(),5000);
+        }
+    }
+
+    document.getElementById('replay-btn').addEventListener('click',()=>{
+        current=0; score=0; answers=[]; selectedWords=[];
+        document.getElementById('password-input').value='';
+        showScreen('cover-screen');
+    });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a11a82ddc09b9e34',t:'MTc4MjQ1OTA3NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
