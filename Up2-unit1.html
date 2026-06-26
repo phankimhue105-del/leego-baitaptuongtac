@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 1: How We Feel</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <style>
+        body { font-family: 'DM Sans', Arial, Helvetica, sans-serif; }
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .word-btn { transition: all 0.2s; }
+        .word-btn:hover { transform: scale(1.05); }
+        
+        /* Cover Page default state */
+        #cover-page {
+            display: flex;
+            visibility: visible;
+            opacity: 1;
+            position: relative;
+            z-index: 100;
+        }
+        
+        /* Quiz and Result hidden by default */
+        #quiz-screen,
+        #result-screen {
+            display: none;
+        }
+        
+        /* Cover title styling */
+        #cover-page h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 2rem;
+            display: block;
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @media (min-width: 640px) {
+            #cover-page h1 {
+                font-size: 2.25rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            #cover-page h1 {
+                font-size: 3rem;
+            }
+        }
+    </style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen flex flex-col">
+  <!-- Header -->
+  <header data-template-id="app-header" class="canva-header w-full bg-red-700 text-white px-4 py-2 flex justify-between items-center text-xs sm:text-sm flex-shrink-0">
+   <span data-template-id="header-left" class="canva-text">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span data-template-id="header-right" class="canva-text font-medium">Up 2 - Unit 1</span>
+  </header><!-- Main Content -->
+  <main class="flex-1 flex flex-col overflow-auto">
+   <!-- Cover Page -->
+   <div id="cover-page" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-red-700 mb-8">UNIT 1: HOW WE FEEL</h1>
+    <div class="w-full max-w-sm space-y-4">
+     <input id="password-input" type="password" placeholder="Nhập mật khẩu" class="w-full px-4 py-3 border-2 border-red-300 rounded-xl text-center text-lg focus:outline-none focus:border-red-600" aria-label="Mật khẩu"> <button id="unlock-btn" class="w-full py-3 bg-red-600 text-white rounded-xl text-lg font-bold hover:bg-red-700 active:scale-95 transition">Mở khóa bài học</button>
+     <p id="pw-feedback" class="text-sm h-6"></p>
+    </div>
+   </div><!-- Quiz Screen -->
+   <div id="quiz-screen" class="hidden flex-1 flex flex-col p-4 sm:p-6">
+    <!-- Progress -->
+    <div class="mb-4">
+     <div class="flex justify-between text-sm text-gray-600 mb-1">
+      <span id="progress-text">Câu 1/12</span> <span id="progress-pct">0%</span>
+     </div>
+     <div class="w-full bg-gray-200 rounded-full h-3">
+      <div id="progress-bar" class="bg-red-600 h-3 rounded-full transition-all duration-500" style="width:0%"></div>
+     </div>
+    </div><!-- Question Area -->
+    <div id="question-area" class="fade-in flex-1 flex flex-col"></div><!-- Feedback -->
+    <div id="feedback-area" class="hidden mt-4 p-4 rounded-xl"></div><!-- Next Button --> <button id="next-btn" class="hidden mt-4 w-full py-3 bg-red-600 text-white rounded-xl text-lg font-bold hover:bg-red-700 active:scale-95 transition" onclick="nextQuestion()">Câu tiếp theo</button>
+   </div><!-- Result Screen -->
+   <div id="result-screen" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center fade-in">
+    <div class="text-5xl mb-4">
+     🎉
+    </div>
+    <h2 data-template-id="result-title" class="canva-text text-2xl sm:text-3xl font-bold text-red-700 mb-6"></h2>
+    <div id="result-details" class="space-y-2 text-lg mb-6"></div>
+    <div id="result-comment" class="text-xl font-bold mb-6"></div><button id="retry-btn" data-template-id="retry-button" class="canva-button py-3 px-8 bg-red-600 text-white rounded-xl text-lg font-bold hover:bg-red-700 active:scale-95 transition" onclick="retry()">Làm lại</button>
+   </div>
+  </main><!-- Footer -->
+  <footer data-template-id="app-footer" class="canva-footer w-full bg-red-700 text-white px-4 py-2 flex justify-between items-center text-xs sm:text-sm flex-shrink-0">
+   <span data-template-id="footer-left" class="canva-text">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span data-template-id="footer-right" class="canva-text font-medium">Up 2 - Unit 1</span>
+  </footer>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <script>
+        const questions = [
+            { type:'mc', hint:'🙂', question:'What feeling is this?', options:['sad','hungry','happy','tired'], answer:'happy', explanation:'Happy nghĩa là vui vẻ. Icon mặt cười cho thấy người đang cảm thấy vui nên đáp án đúng là happy.' },
+            { type:'mc', hint:'👀', question:'What can we do with our eyes?', options:['smell','hear','touch','see'], answer:'see', explanation:'Chúng ta dùng mắt để nhìn. Động từ phù hợp là see.' },
+            { type:'mc', hint:'"I want food."', question:'How do I feel?', options:['thirsty','hungry','bored','excited'], answer:'hungry', explanation:'Khi muốn ăn thức ăn, chúng ta cảm thấy hungry (đói).' },
+            { type:'mc', hint:'"I need water."', question:'How do I feel?', options:['thirsty','tired','happy','cold'], answer:'thirsty', explanation:'Khi cần uống nước, chúng ta cảm thấy thirsty (khát).' },
+            { type:'build', words:['happy','I','am','.'], answer:'I am happy.', explanation:'Cấu trúc: I + am + adjective → I am happy.' },
+            { type:'build', words:['hungry','Are','you','?'], answer:'Are you hungry?', explanation:'Câu hỏi với TO BE: Are + you + adjective? → Are you hungry?' },
+            { type:'build', words:['tired','is','He','.'], answer:'He is tired.', explanation:'He đi với is. → He is tired.' },
+            { type:'build', words:['see','What','she','can','?'], answer:'What can she see?', explanation:'Câu hỏi với can: What + can + subject + verb? → What can she see?' },
+            { type:'mc', hint:null, question:'She ____ tired.', options:['am','is','are','be'], answer:'is', explanation:'She là ngôi thứ ba số ít nên dùng is.' },
+            { type:'mc', hint:null, question:'____ you happy?', options:['Am','Is','Are','Be'], answer:'Are', explanation:'You đi với Are. → Are you happy?' },
+            { type:'mc', hint:null, question:'My leg ____.', options:['hurt','hurts','hurting','hurted'], answer:'hurts', explanation:'My leg là chủ ngữ số ít nên động từ thêm -s. → My leg hurts.' },
+            { type:'mc', hint:null, question:'He can ____ a bird.', options:['sees','saw','seeing','see'], answer:'see', explanation:'Sau can dùng động từ nguyên thể. → can see.' }
+        ];
+
+        let current = 0, score = 0, answered = false;
+        let selectedWords = [];
+
+        function shuffle(arr) { let a=[...arr]; for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+        function checkPassword() {
+            const pw = document.getElementById('password-input').value;
+            const fb = document.getElementById('pw-feedback');
+            if(pw === '1205') {
+                fb.textContent = '✅ Mật khẩu chính xác';
+                fb.className = 'text-sm h-6 text-green-600 font-bold';
+                setTimeout(() => {
+                    document.getElementById('cover-page').style.display = 'none';
+                    document.getElementById('cover-page').style.visibility = 'hidden';
+                    document.getElementById('cover-page').style.opacity = '0';
+                    document.getElementById('quiz-screen').style.display = 'flex';
+                    document.getElementById('quiz-screen').style.visibility = 'visible';
+                    document.getElementById('quiz-screen').style.opacity = '1';
+                    current = 0;
+                    score = 0;
+                    renderQuestion();
+                    console.log('Quiz unlocked and loaded');
+                }, 600);
+            } else {
+                fb.textContent = '❌ Sai mật khẩu';
+                fb.className = 'text-sm h-6 text-red-600 font-bold';
+            }
+        }
+
+        document.getElementById('password-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPassword(); });
+        document.getElementById('unlock-btn').addEventListener('click', checkPassword);
+
+        function updateProgress() {
+            const pct = Math.round((current/12)*100);
+            document.getElementById('progress-text').textContent = `Câu ${current+1}/12`;
+            document.getElementById('progress-pct').textContent = pct+'%';
+            document.getElementById('progress-bar').style.width = pct+'%';
+        }
+
+        function renderQuestion() {
+            answered = false;
+            selectedWords = [];
+            document.getElementById('feedback-area').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            updateProgress();
+            const q = questions[current];
+            const area = document.getElementById('question-area');
+            area.innerHTML = '';
+            area.className = 'fade-in flex-1 flex flex-col';
+
+            if(q.type === 'mc') {
+                let html = '';
+                if(q.hint) html += `<div class="text-5xl sm:text-6xl mb-4 text-center">${q.hint}</div>`;
+                html += `<p class="text-lg sm:text-xl font-bold mb-4 text-center">${q.question}</p>`;
+                html += '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto w-full">';
+                const labels = ['A','B','C','D'];
+                q.options.forEach((o,i) => {
+                    html += `<button class="mc-opt w-full py-3 px-4 border-2 border-gray-300 rounded-xl text-left text-lg font-medium hover:border-red-500 active:scale-95 transition" onclick="selectMC(this,'${o}')">${labels[i]}. ${o}</button>`;
+                });
+                html += '</div>';
+                area.innerHTML = html;
+            } else {
+                const shuffled = shuffle(q.words);
+                let html = `<p class="text-lg sm:text-xl font-bold mb-2 text-center">Sắp xếp từ thành câu hoàn chỉnh:</p>`;
+                html += `<div id="sentence-box" class="min-h-[50px] border-2 border-dashed border-gray-400 rounded-xl p-3 mb-4 flex flex-wrap gap-2 items-center justify-center text-lg"></div>`;
+                html += `<div id="word-pool" class="flex flex-wrap gap-2 justify-center mb-4">`;
+                shuffled.forEach(w => {
+                    html += `<button class="word-btn px-4 py-2 bg-red-100 border-2 border-red-400 rounded-lg text-lg font-medium" onclick="pickWord(this,'${w.replace(/'/g,"\\'")}')">${w}</button>`;
+                });
+                html += '</div>';
+                html += '<div class="flex gap-3 justify-center">';
+                html += '<button class="px-6 py-2 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 active:scale-95 transition" onclick="checkBuild()">Check</button>';
+                html += '<button class="px-6 py-2 bg-gray-400 text-white rounded-xl font-bold hover:bg-gray-500 active:scale-95 transition" onclick="resetBuild()">Reset</button>';
+                html += '</div>';
+                area.innerHTML = html;
+            }
+        }
+
+        function selectMC(btn, val) {
+            if(answered) return;
+            answered = true;
+            const q = questions[current];
+            const correct = val === q.answer;
+            if(correct) score++;
+            document.querySelectorAll('.mc-opt').forEach(b => {
+                b.disabled = true;
+                if(b.textContent.includes(q.answer)) b.classList.add('border-green-500','bg-green-50');
+            });
+            if(!correct) btn.classList.add('border-red-500','bg-red-50');
+            showFeedback(correct, q.explanation);
+        }
+
+        function pickWord(btn, word) {
+            if(answered) return;
+            btn.classList.add('hidden');
+            selectedWords.push(word);
+            renderSentenceBox();
+        }
+
+        function renderSentenceBox() {
+            const box = document.getElementById('sentence-box');
+            box.innerHTML = selectedWords.map((w,i) => `<span class="px-3 py-1 bg-red-600 text-white rounded-lg cursor-pointer" onclick="removeWord(${i})">${w}</span>`).join('');
+        }
+
+        function removeWord(idx) {
+            if(answered) return;
+            const word = selectedWords.splice(idx,1)[0];
+            renderSentenceBox();
+            const pool = document.getElementById('word-pool');
+            const btns = pool.querySelectorAll('.word-btn');
+            btns.forEach(b => { if(b.textContent === word && b.classList.contains('hidden')) { b.classList.remove('hidden'); return; } });
+            // fallback
+            let found = false;
+            btns.forEach(b => { if(!found && b.textContent === word && b.classList.contains('hidden')) { b.classList.remove('hidden'); found=true; } });
+        }
+
+        function checkBuild() {
+            if(answered) return;
+            answered = true;
+            const q = questions[current];
+            // Build user sentence
+            let userSentence = selectedWords.join(' ');
+            // Handle punctuation attached
+            userSentence = userSentence.replace(/ \?/g,'?').replace(/ \./g,'.').replace(/ !/g,'!');
+            // Add period if answer ends with period and user didn't
+            const correct = userSentence.trim() === q.answer;
+            if(correct) score++;
+            showFeedback(correct, q.explanation);
+        }
+
+        function resetBuild() {
+            if(answered) return;
+            selectedWords = [];
+            renderSentenceBox();
+            document.querySelectorAll('#word-pool .word-btn').forEach(b => b.classList.remove('hidden'));
+        }
+
+        function showFeedback(correct, explanation) {
+            const fb = document.getElementById('feedback-area');
+            fb.classList.remove('hidden');
+            fb.className = `mt-4 p-4 rounded-xl ${correct ? 'bg-green-50 border border-green-300' : 'bg-red-50 border border-red-300'}`;
+            fb.innerHTML = `<p class="font-bold text-lg ${correct?'text-green-700':'text-red-700'}">${correct?'✅ Chính xác':'❌ Chưa chính xác'}</p><p class="mt-2 text-gray-700"><strong>Giải thích:</strong> ${explanation}</p>`;
+            document.getElementById('next-btn').classList.remove('hidden');
+            playSound(correct);
+        }
+
+        function playSound(correct) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                if(correct) {
+                    osc.type='sine'; osc.frequency.setValueAtTime(523,ctx.currentTime); osc.frequency.setValueAtTime(659,ctx.currentTime+0.15); osc.frequency.setValueAtTime(784,ctx.currentTime+0.3);
+                    gain.gain.setValueAtTime(0.3,ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.8);
+                    osc.start(); osc.stop(ctx.currentTime+0.8);
+                } else {
+                    osc.type='sawtooth'; osc.frequency.setValueAtTime(200,ctx.currentTime); osc.frequency.setValueAtTime(150,ctx.currentTime+0.2);
+                    gain.gain.setValueAtTime(0.2,ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);
+                    osc.start(); osc.stop(ctx.currentTime+0.5);
+                }
+            } catch(e) {}
+        }
+
+        function playCelebration() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [523,587,659,698,784,880,988,1047];
+                notes.forEach((f,i) => {
+                    const osc = ctx.createOscillator(); const g = ctx.createGain();
+                    osc.connect(g); g.connect(ctx.destination);
+                    osc.type='sine'; osc.frequency.value=f;
+                    g.gain.setValueAtTime(0.2,ctx.currentTime+i*0.2);
+                    g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+i*0.2+0.3);
+                    osc.start(ctx.currentTime+i*0.2); osc.stop(ctx.currentTime+i*0.2+0.3);
+                });
+            } catch(e) {}
+        }
+
+        function nextQuestion() {
+            current++;
+            if(current >= 12) { showResult(); return; }
+            renderQuestion();
+        }
+
+        function showResult() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.visibility = 'hidden';
+            document.getElementById('quiz-screen').style.opacity = '0';
+            document.getElementById('result-screen').style.display = 'flex';
+            document.getElementById('result-screen').style.visibility = 'visible';
+            document.getElementById('result-screen').style.opacity = '1';
+            const pct = Math.round((score/12)*100);
+            let comment = '';
+            if(pct>=90) comment='🏆 Xuất sắc';
+            else if(pct>=80) comment='🌟 Rất tốt';
+            else if(pct>=65) comment='👍 Tốt';
+            else if(pct>=50) comment='💪 Cần cố gắng thêm';
+            else comment='📚 Hãy ôn tập lại Unit 1';
+            document.getElementById('result-details').innerHTML = `
+                <p>✅ Số câu đúng: <strong>${score}</strong></p>
+                <p>❌ Số câu sai: <strong>${12-score}</strong></p>
+                <p>📊 Điểm số: <strong>${score}/12</strong></p>
+                <p>📈 Tỷ lệ: <strong>${pct}%</strong></p>
+            `;
+            document.getElementById('result-comment').textContent = comment;
+            playCelebration();
+        }
+
+        function retry() {
+            current = 0; 
+            score = 0; 
+            answered = false; 
+            selectedWords = [];
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('result-screen').style.visibility = 'hidden';
+            document.getElementById('result-screen').style.opacity = '0';
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.visibility = 'hidden';
+            document.getElementById('quiz-screen').style.opacity = '0';
+            document.getElementById('cover-page').style.display = 'flex';
+            document.getElementById('cover-page').style.visibility = 'visible';
+            document.getElementById('cover-page').style.opacity = '1';
+            document.getElementById('password-input').value = '';
+            document.getElementById('pw-feedback').textContent = '';
+        }
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1194f7397c67ac6',t:'MTc4MjQ0NjQ4Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
