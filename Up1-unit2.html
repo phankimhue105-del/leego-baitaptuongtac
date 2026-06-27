@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 2: Art Class</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <style>
+:root{--vh:1vh}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;margin:0;padding:60px 0;min-height:calc(100*min(var(--vh,1vh),1vh))}
+.fixed-header{position:fixed;top:0;left:0;right:0;height:50px;background:#1e40af;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1000;font-size:13px}
+.fixed-footer{position:fixed;bottom:0;left:0;right:0;height:40px;background:#1e40af;color:#fff;display:flex;align-items:center;justify-content:center;z-index:1000;font-size:12px}
+.page{display:none;padding:20px;max-width:600px;margin:0 auto}
+.page.active{display:block}
+.btn{padding:14px 28px;border:none;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;transition:transform .1s}
+.btn:active{transform:scale(.95)}
+.btn-orange{background:#f97316;color:#fff}
+.btn-blue{background:#2563eb;color:#fff}
+.btn-green{background:#16a34a;color:#fff}
+.choice-btn{display:block;width:100%;padding:14px;margin:8px 0;border:2px solid #e5e7eb;border-radius:12px;font-size:16px;cursor:pointer;background:#fff;text-align:left;transition:all .2s}
+.choice-btn:hover{border-color:#3b82f6;background:#eff6ff}
+.choice-btn.correct{border-color:#16a34a;background:#dcfce7}
+.choice-btn.wrong{border-color:#dc2626;background:#fee2e2}
+.choice-btn.disabled{pointer-events:none}
+.word-btn{display:inline-block;padding:10px 16px;margin:4px;border:2px solid #3b82f6;border-radius:8px;background:#eff6ff;cursor:pointer;font-size:16px;transition:all .2s}
+.word-btn.used{opacity:.3;pointer-events:none}
+.word-btn.in-answer{background:#3b82f6;color:#fff;border-color:#1d4ed8}
+.progress-bar{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;margin-bottom:16px}
+.progress-fill{height:100%;background:#3b82f6;transition:width .3s}
+.feedback{padding:16px;border-radius:12px;margin:16px 0;font-size:16px}
+.feedback.correct{background:#dcfce7;border:2px solid #16a34a}
+.feedback.wrong{background:#fee2e2;border:2px solid #dc2626}
+@keyframes confetti-fall{0%{transform:translateY(-100vh) rotate(0)}100%{transform:translateY(100vh) rotate(720deg)}}
+.confetti-piece{position:fixed;width:10px;height:10px;top:-10px;animation:confetti-fall 3s linear forwards}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.shake{animation:shake .3s}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,.4)}50%{box-shadow:0 0 0 20px rgba(22,163,74,0)}}
+.pulse-green{animation:pulse-green .6s}
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root">
+  <header class="fixed-header">
+   <div>
+    <strong>Trung tâm Anh ngữ LeeGo</strong><br>
+     Hotline: 0988.526.585
+   </div>
+   <div style="text-align:right">
+    <strong>Up 1 - Unit 2</strong>
+   </div>
+  </header>
+  <footer class="fixed-footer">
+   © LeeGo English Center
+  </footer><!-- COVER PAGE -->
+  <div id="cover-page" class="page active">
+   <div style="text-align:center;padding-top:40px">
+    <h1 data-template-id="cover-title" class="canva-text" style="font-size:28px;font-weight:bold;color:#1e40af">UNIT 2: ART CLASS</h1>
+    <p data-template-id="cover-subtitle" class="canva-text" style="font-size:18px;color:#4b5563;margin:8px 0">Cambridge Starters Practice Quiz</p>
+    <p style="margin:24px 0;color:#374151">Vui lòng nhập mật khẩu để bắt đầu bài kiểm tra.</p><input id="pw-input" type="password" placeholder="Nhập mật khẩu" style="padding:12px 20px;font-size:16px;border:2px solid #d1d5db;border-radius:8px;width:200px;text-align:center">
+    <p id="pw-error" style="color:#dc2626;margin:8px 0;display:none">Sai mật khẩu!</p><br><br><button class="btn btn-orange" onclick="checkPassword()">BẮT ĐẦU</button>
+   </div>
+  </div><!-- QUIZ PAGE -->
+  <div id="quiz-page" class="page">
+   <div class="progress-bar">
+    <div id="progress-fill" class="progress-fill" style="width:0%"></div>
+   </div>
+   <div style="display:flex;justify-content:space-between;font-size:14px;color:#6b7280;margin-bottom:12px"><span id="q-number">Câu 1/12</span> <span id="q-score">Điểm: 0</span>
+   </div>
+   <div id="q-part" style="font-size:13px;color:#2563eb;font-weight:bold;margin-bottom:8px"></div>
+   <div id="q-image" style="text-align:center;margin:12px 0"></div>
+   <div id="q-text" style="font-size:18px;font-weight:bold;margin:12px 0"></div>
+   <div id="q-content"></div>
+   <div id="q-feedback" style="display:none"></div>
+   <div id="q-next" style="display:none;text-align:center;margin-top:16px"><button class="btn btn-blue" onclick="nextQuestion()">➡ Câu tiếp theo</button>
+   </div>
+  </div><!-- RESULT PAGE -->
+  <div id="result-page" class="page">
+   <div style="text-align:center;padding-top:20px">
+    <h1 style="font-size:32px">🎉 CHÚC MỪNG!</h1>
+    <p id="r-score" style="font-size:24px;font-weight:bold;margin:16px 0"></p>
+    <p id="r-percent" style="font-size:20px;color:#4b5563"></p>
+    <p id="r-msg" style="font-size:20px;margin:12px 0"></p>
+    <div id="r-correct" style="text-align:left;margin:16px 0"></div>
+    <div id="r-wrong" style="text-align:left;margin:16px 0"></div><button class="btn btn-blue" onclick="resetQuiz()" style="margin-top:20px">🔄 Làm lại</button>
+   </div>
+  </div>
+  <script>
+const PASS="1379";
+let currentQ=0,score=0,answered=false,results=[];
+const questions=[
+{part:1,type:"mc",image:"chalk",question:"What is this?",choices:["paint","chalk","glue","tape"],correct:1,explanation:'Đáp án đúng là "chalk" vì tranh minh họa là những viên phấn trắng thường dùng để viết lên bảng. "Chalk" có nghĩa là phấn viết bảng.'},
+{part:1,type:"mc",image:"paper",question:"What is this?",choices:["yarn","paper","glue","tape"],correct:1,explanation:'Đáp án đúng là "paper" vì tranh là một tờ giấy trắng.'},
+{part:1,type:"mc",image:"red",question:"What color is it?",choices:["blue","yellow","red","black"],correct:2,explanation:'Đáp án đúng là "red" vì hình minh họa là màu đỏ.'},
+{part:1,type:"mc",image:"green",question:"What color is it?",choices:["green","purple","brown","orange"],correct:0,explanation:'Đáp án đúng là "green" vì hình minh họa là màu xanh lá cây.'},
+{part:2,type:"build",tokens:["This","is","paint","."],correct:"This is paint.",explanation:'"This is paint." Mẫu câu dùng để giới thiệu đồ vật.'},
+{part:2,type:"build",tokens:["What","color","is","it","?"],correct:"What color is it?",explanation:'"What color is it?" Dùng để hỏi màu sắc.'},
+{part:2,type:"build",tokens:["It","is","red","."],correct:"It is red.",explanation:'"It is red." Mẫu câu trả lời về màu sắc.'},
+{part:2,type:"build",tokens:["Blue","and","yellow","make","green","."],correct:"Blue and yellow make green.",explanation:'Blue + Yellow = Green.'},
+{part:3,type:"mc",image:null,question:"What _____ this?",choices:["am","is","are","be"],correct:1,explanation:'"What is this?" là mẫu câu đúng.'},
+{part:3,type:"mc",image:null,question:"This _____ paint.",choices:["am","are","is","be"],correct:2,explanation:'"This" là chủ ngữ số ít nên dùng "is".'},
+{part:3,type:"mc",image:null,question:"What color is it?\nIt is _____.",choices:["paper","green","glue","tape"],correct:1,explanation:'Câu hỏi "What color...?" là câu hỏi dùng để hỏi về màu sắc. Vì vậy, câu trả lời phải là một từ chỉ màu sắc. "Green" là tên của một màu, có nghĩa là "màu xanh lá cây", nên đây là đáp án đúng.'},
+{part:3,type:"mc",image:null,question:"Blue and yellow make _____.",choices:["red","black","green","white"],correct:2,explanation:'Theo bài học: Blue and yellow make green.'}
+];
+
+function checkPassword(){
+const v=document.getElementById("pw-input").value;
+if(v===PASS){document.getElementById("pw-error").style.display="none";startQuiz()}
+else{document.getElementById("pw-error").style.display="block";document.getElementById("pw-input").classList.add("shake");setTimeout(()=>document.getElementById("pw-input").classList.remove("shake"),300)}
+}
+
+function startQuiz(){currentQ=0;score=0;results=[];showPage("quiz-page");renderQuestion()}
+function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(id).classList.add("active")}
+
+function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function getSVG(type){
+if(type==="chalk")return'<svg width="120" height="120" viewBox="0 0 120 120"><g><rect x="25" y="35" width="12" height="65" rx="4" fill="#f5f5f5" stroke="#1e293b" stroke-width="2"/><ellipse cx="31" cy="35" rx="6" ry="4" fill="#e8e8e8" stroke="#1e293b" stroke-width="1.5"/><path d="M 25 95 L 20 100 Q 18 103 22 105 Q 25 103 31 100" fill="#d0d0d0" stroke="#1e293b" stroke-width="1.5"/><rect x="42" y="25" width="12" height="75" rx="4" fill="#ffffff" stroke="#1e293b" stroke-width="2"/><ellipse cx="48" cy="25" rx="6" ry="4" fill="#f0f0f0" stroke="#1e293b" stroke-width="1.5"/><rect x="59" y="40" width="12" height="60" rx="4" fill="#f5f5f5" stroke="#1e293b" stroke-width="2"/><ellipse cx="65" cy="40" rx="6" ry="4" fill="#e8e8e8" stroke="#1e293b" stroke-width="1.5"/><path d="M 59 95 Q 57 98 62 102 L 71 98 Q 68 96 65 97" fill="#d0d0d0" stroke="#1e293b" stroke-width="1.5"/><rect x="76" y="45" width="12" height="55" rx="4" fill="#ffffff" stroke="#1e293b" stroke-width="2"/><ellipse cx="82" cy="45" rx="6" ry="4" fill="#f0f0f0" stroke="#1e293b" stroke-width="1.5"/></g></svg>';
+if(type==="paint")return'<svg width="120" height="120" viewBox="0 0 120 120"><rect x="35" y="30" width="50" height="70" rx="5" fill="#fbbf24" stroke="#1e293b" stroke-width="3"/><rect x="35" y="25" width="50" height="12" rx="3" fill="#f59e0b" stroke="#1e293b" stroke-width="2"/><rect x="55" y="10" width="10" height="20" rx="2" fill="#92400e" stroke="#1e293b" stroke-width="2"/><line x1="80" y1="40" x2="105" y2="15" stroke="#92400e" stroke-width="4" stroke-linecap="round"/><circle cx="105" cy="13" r="4" fill="#6b7280"/></svg>';
+if(type==="paper")return'<svg width="120" height="120" viewBox="0 0 120 120"><rect x="25" y="20" width="70" height="85" rx="3" fill="#fff" stroke="#1e293b" stroke-width="3"/><line x1="35" y1="40" x2="85" y2="40" stroke="#e5e7eb" stroke-width="1"/><line x1="35" y1="55" x2="85" y2="55" stroke="#e5e7eb" stroke-width="1"/><line x1="35" y1="70" x2="85" y2="70" stroke="#e5e7eb" stroke-width="1"/></svg>';
+if(type==="red")return'<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="40" fill="#dc2626"/><ellipse cx="50" cy="50" rx="10" ry="8" fill="#ef4444" opacity=".5"/></svg>';
+if(type==="green")return'<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="40" fill="#16a34a"/><ellipse cx="50" cy="50" rx="10" ry="8" fill="#22c55e" opacity=".5"/></svg>';
+return'';
+}
+
+let buildAnswer=[];let buildTokens=[];
+
+function renderQuestion(){
+answered=false;
+const q=questions[currentQ];
+document.getElementById("progress-fill").style.width=((currentQ)/12*100)+"%";
+document.getElementById("q-number").textContent=`Câu ${currentQ+1}/12`;
+document.getElementById("q-score").textContent=`Điểm: ${score}`;
+document.getElementById("q-feedback").style.display="none";
+document.getElementById("q-next").style.display="none";
+const partNames={1:"PART 1: VOCABULARY",2:"PART 2: CLICK-TO-BUILD SENTENCE",3:"PART 3: MULTIPLE CHOICE GRAMMAR"};
+document.getElementById("q-part").textContent=partNames[q.part];
+document.getElementById("q-image").innerHTML=q.image?getSVG(q.image):"";
+document.getElementById("q-text").textContent=q.question;
+
+const content=document.getElementById("q-content");
+content.innerHTML="";
+
+if(q.type==="mc"){
+q.choices.forEach((c,i)=>{
+const btn=document.createElement("button");
+btn.className="choice-btn";
+btn.textContent=`${"ABCD"[i]}. ${c}`;
+btn.onclick=()=>selectMC(i,btn);
+content.appendChild(btn);
+});
+}else{
+buildAnswer=[];
+buildTokens=shuffle(q.tokens);
+renderBuild(content);
+}
+}
+
+function renderBuild(container){
+if(!container)container=document.getElementById("q-content");
+container.innerHTML="";
+// Answer area
+const ansDiv=document.createElement("div");
+ansDiv.id="answer-area";
+ansDiv.style.cssText="min-height:50px;padding:12px;border:2px dashed #d1d5db;border-radius:8px;margin-bottom:16px;font-size:18px";
+ansDiv.textContent=formatAnswer(buildAnswer);
+container.appendChild(ansDiv);
+// Word bank
+const bank=document.createElement("div");
+bank.style.cssText="text-align:center";
+buildTokens.forEach((t,i)=>{
+const btn=document.createElement("button");
+btn.className="word-btn"+(buildAnswer.includes(i)?" used":"");
+btn.textContent=t;
+btn.onclick=()=>{if(!answered){buildAnswer.push(i);renderBuild()}};
+container.appendChild(btn);// append to bank
+bank.appendChild(btn);
+});
+container.appendChild(bank);
+// Reset btn
+const reset=document.createElement("button");
+reset.textContent="Reset";
+reset.style.cssText="margin-top:12px;padding:8px 16px;border:1px solid #6b7280;border-radius:6px;cursor:pointer;background:#f3f4f6";
+reset.onclick=()=>{if(!answered){buildAnswer=[];buildTokens=shuffle(questions[currentQ].tokens);renderBuild()}};
+container.appendChild(reset);
+// Check btn
+if(buildAnswer.length===buildTokens.length&&!answered){
+const check=document.createElement("button");
+check.textContent="Kiểm tra";
+check.className="btn btn-green";
+check.style.marginTop="12px";
+check.style.marginLeft="8px";
+check.onclick=()=>checkBuild();
+container.appendChild(check);
+}
+}
+
+function formatAnswer(indices){
+let s="";
+const q=questions[currentQ];
+indices.forEach((idx,i)=>{
+const token=buildTokens[idx];
+if((token==="."||token==="?")&&s.length>0){s+=token}
+else{s+=(i>0&&s[s.length-1]!=="."&&s[s.length-1]!=="?"?" ":"")+token}
+});
+// fix: no space before punctuation
+return s.replace(/\s+([.?])/g,"$1");
+}
+
+function checkBuild(){
+const q=questions[currentQ];
+const userAnswer=formatAnswer(buildAnswer);
+const isCorrect=userAnswer===q.correct;
+if(isCorrect)score++;
+results.push({q:currentQ,correct:isCorrect});
+answered=true;
+showFeedback(isCorrect,q.explanation);
+}
+
+function selectMC(i,btn){
+if(answered)return;
+answered=true;
+const q=questions[currentQ];
+const isCorrect=i===q.correct;
+if(isCorrect){score++;btn.classList.add("correct")}
+else{btn.classList.add("wrong");document.querySelectorAll(".choice-btn")[q.correct].classList.add("correct")}
+document.querySelectorAll(".choice-btn").forEach(b=>b.classList.add("disabled"));
+results.push({q:currentQ,correct:isCorrect});
+showFeedback(isCorrect,q.explanation);
+}
+
+function showFeedback(isCorrect,explanation){
+playSound(isCorrect);
+const fb=document.getElementById("q-feedback");
+fb.style.display="block";
+fb.className="feedback "+(isCorrect?"correct":"wrong");
+fb.innerHTML=`<strong>${isCorrect?"✅ Chính xác":"❌ Chưa chính xác"}</strong><br><br>${explanation}`;
+document.getElementById("q-next").style.display="block";
+document.getElementById("progress-fill").style.width=((currentQ+1)/12*100)+"%";
+}
+
+function nextQuestion(){
+currentQ++;
+if(currentQ>=12){showResults()}
+else{renderQuestion()}
+}
+
+function showResults(){
+showPage("result-page");
+document.getElementById("r-score").textContent=`${score} / 12`;
+document.getElementById("r-percent").textContent=`${Math.round(score/12*100)}%`;
+let msg="";
+if(score===12)msg="Xuất sắc!";else if(score>=10)msg="Rất tốt!";else if(score>=7)msg="Tốt!";else if(score>=4)msg="Cần luyện thêm.";else msg="Hãy cố gắng nhé!";
+document.getElementById("r-msg").textContent=msg;
+const cor=results.filter(r=>r.correct).map(r=>`Câu ${r.q+1}`);
+const wr=results.filter(r=>!r.correct).map(r=>`Câu ${r.q+1}`);
+document.getElementById("r-correct").innerHTML=`<strong style="color:#16a34a">Danh sách câu đúng:</strong> ${cor.length?cor.join(", "):"Không có"}`;
+document.getElementById("r-wrong").innerHTML=`<strong style="color:#dc2626">Danh sách câu sai:</strong> ${wr.length?wr.join(", "):"Không có"}`;
+launchConfetti();
+playSound(true,true);
+}
+
+function resetQuiz(){showPage("cover-page");document.getElementById("pw-input").value=""}
+
+// Audio
+const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+function playSound(correct,long){
+const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+o.connect(g);g.connect(audioCtx.destination);
+g.gain.value=0.15;
+if(correct){o.frequency.value=523;o.type="sine";o.start();o.frequency.setValueAtTime(659,audioCtx.currentTime+0.1);o.frequency.setValueAtTime(784,audioCtx.currentTime+0.2)}
+else{o.frequency.value=200;o.type="square";o.start();o.frequency.setValueAtTime(150,audioCtx.currentTime+0.15)}
+const dur=long?3:1.5;g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);o.stop(audioCtx.currentTime+dur);
+}
+
+function launchConfetti(){
+const colors=["#dc2626","#2563eb","#16a34a","#f59e0b","#8b5cf6","#ec4899"];
+for(let i=0;i<40;i++){
+const el=document.createElement("div");
+el.className="confetti-piece";
+el.style.left=Math.random()*100+"vw";
+el.style.background=colors[Math.floor(Math.random()*colors.length)];
+el.style.animationDelay=Math.random()*2+"s";
+el.style.borderRadius=Math.random()>.5?"50%":"0";
+document.body.appendChild(el);
+setTimeout(()=>el.remove(),5000);
+}
+}
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1238c1cc789ff81',t:'MTc4MjU1MzgyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
