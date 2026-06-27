@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 3: Birthday Party Quiz</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/editing_sdk.js"></script>
+  <style>
+        * { font-family: 'Libre Franklin', sans-serif; }
+        .shake { animation: shake 0.5s; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+        .pop { animation: pop 0.4s ease; }
+        @keyframes pop { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
+        .confetti-piece { position:fixed; width:10px; height:10px; animation: fall 3s linear forwards; }
+        @keyframes fall { 0%{top:-10px;opacity:1;transform:rotate(0deg)} 100%{top:100vh;opacity:0;transform:rotate(720deg)} }
+        .correct-flash { animation: greenFlash 0.6s; }
+        @keyframes greenFlash { 0%{background:#d1fae5} 100%{background:transparent} }
+        .incorrect-flash { animation: redFlash 0.6s; }
+        @keyframes redFlash { 0%{background:#fee2e2} 100%{background:transparent} }
+        .word-btn { transition: all 0.15s; }
+        .word-btn:hover { transform: scale(1.05); }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen flex flex-col"><!-- HEADER -->
+  <header data-template-id="header-section" class="canva-header fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 py-2 shadow-md">
+   <div>
+    <div class="canva-text font-bold text-sm">
+     Trung tâm Anh ngữ LeeGo
+    </div>
+    <div class="canva-text text-xs">
+     Hotline: 0988.526.585
+    </div>
+   </div>
+   <div class="canva-text font-semibold text-sm text-right">
+    Up 1 - Unit 3
+   </div>
+  </header><!-- FOOTER -->
+  <footer data-template-id="footer-section" class="canva-footer fixed bottom-0 left-0 right-0 z-50 text-center py-2 text-xs"><span class="canva-text">© Trung tâm Anh ngữ LeeGo • Cambridge Starters</span>
+  </footer><!-- MAIN CONTENT -->
+  <main class="flex-1 mt-14 mb-10 p-4 flex items-center justify-center"><!-- COVER PAGE -->
+   <div id="cover-page" class="w-full max-w-md text-center space-y-6">
+    <h1 class="canva-text text-3xl font-extrabold" style="color: #1E3A5F;">UNIT 3: BIRTHDAY PARTY</h1>
+    <p class="canva-text text-lg" style="color: #F97316; font-weight: 600;">Cambridge Starters Practice Quiz</p>
+    <p class="canva-text text-sm" style="color: #374151;">Vui lòng nhập mật khẩu để bắt đầu bài kiểm tra.</p><input id="password-input" type="password" placeholder="Nhập mật khẩu..." class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-center text-lg focus:outline-none focus:border-orange-400">
+    <p id="password-error" class="text-red-500 font-semibold hidden">Sai mật khẩu!</p><button id="start-btn" class="canva-button w-full py-4 rounded-xl text-xl font-bold cursor-pointer" style="background: #F97316; color: #ffffff; font-weight: 700;">BẮT ĐẦU</button>
+   </div><!-- QUIZ AREA -->
+   <div id="quiz-area" class="w-full max-w-lg hidden"><!-- Progress -->
+    <div class="mb-4">
+     <div class="flex justify-between text-sm font-semibold mb-1"><span id="q-number"></span> <span id="q-score"></span>
+     </div>
+     <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+      <div id="progress-bar" class="h-full bg-gradient-to-r from-orange-400 to-yellow-400 transition-all duration-300" style="width:0%"></div>
+     </div>
+    </div><!-- Question Content -->
+    <div id="question-content" class="bg-white rounded-2xl shadow-lg p-6 min-h-[300px]"></div><!-- Feedback -->
+    <div id="feedback-area" class="hidden mt-4 p-4 rounded-xl text-center space-y-3 pop"></div>
+   </div><!-- RESULT PAGE -->
+   <div id="result-page" class="w-full max-w-md text-center space-y-4 hidden">
+    <div class="text-5xl">
+     🎉
+    </div>
+    <h2 class="canva-text text-2xl font-extrabold" style="color: #1E3A5F; font-weight: 800;">CHÚC MỪNG!</h2>
+    <div id="result-score" class="text-4xl font-bold text-orange-500"></div>
+    <div id="result-percent" class="text-xl"></div>
+    <div id="result-performance" class="text-lg font-semibold"></div>
+    <div id="result-details" class="text-left text-sm space-y-2 mt-4"></div><button id="replay-btn" data-template-id="replay-button" class="canva-button w-full py-4 rounded-xl text-xl font-bold cursor-pointer mt-6"></button>
+   </div>
+  </main>
+  <script>
+    (function(){
+        const PASS = "1379";
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTone(freq, dur, type='sine') {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = type; o.frequency.value = freq;
+            g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime + dur);
+        }
+        function playCorrect() { playTone(523,0.15); setTimeout(()=>playTone(659,0.15),150); setTimeout(()=>playTone(784,0.3),300); }
+        function playIncorrect() { playTone(200,0.3,'sawtooth'); setTimeout(()=>playTone(150,0.4,'sawtooth'),300); }
+        function playCelebration() { [0,200,400,600,800,1000,1200,1400].forEach((t,i)=>setTimeout(()=>playTone(400+i*50,0.2),t)); }
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+            // Ensure not in correct order for sentence questions
+            if(a.join(' ')===arr.join(' ')&&a.length>1){[a[0],a[a.length-1]]=[a[a.length-1],a[0]];}
+            return a;
+        }
+
+        const questions = [
+            // PART 1
+            {type:'mcq',part:1,svg:'card',q:'What is it?',opts:['marble','card','game','doll'],ans:1,exp:'Đáp án đúng là "card" vì tranh minh họa là một lá bài. "Card" có nghĩa là lá bài.'},
+            {type:'mcq',part:1,svg:'doll',q:'What is it?',opts:['puzzle','doll','marble','game'],ans:1,exp:'Đáp án đúng là "doll" vì tranh minh họa là một con búp bê. "Doll" có nghĩa là búp bê.'},
+            {type:'mcq',part:1,svg:'kite',q:'What is it?',opts:['kite','doll','car','ball'],ans:0,exp:'Đáp án đúng là "kite" vì tranh minh họa là chiếc diều.'},
+            {type:'mcq',part:1,svg:'ten',q:'What number is it?',opts:['eight','nine','ten','eleven'],ans:2,exp:'Đáp án đúng là "ten" vì hình minh họa là số 10.'},
+            // PART 2
+            {type:'build',part:2,tokens:['I','am','eight','.'],exp:'"I am eight." dùng để nói tuổi của bản thân.'},
+            {type:'build',part:2,tokens:['How','old','are','you','?'],exp:'"How old are you?" dùng để hỏi tuổi.'},
+            {type:'build',part:2,tokens:['One','doll','.'],exp:'"One doll." nghĩa là một con búp bê. Sau "One" dùng danh từ số ít.'},
+            {type:'build',part:2,tokens:['It','is','your','turn','.'],exp:'"It is your turn." nghĩa là "Đến lượt bạn."'},
+            // PART 3
+            {type:'mcq',part:3,q:'How old are you?',opts:['I am eight.','One doll.','Thank you.','A kite.'],ans:0,exp:'Khi hỏi "How old are you?" phải trả lời bằng số tuổi.'},
+            {type:'mcq',part:3,q:'How many dolls?',opts:['One doll.','I am eight.','Thank you.','It is red.'],ans:0,exp:'"How many..." dùng để hỏi số lượng.'},
+            {type:'mcq',part:3,q:'I have one _____.', opts:['games','game','marbles','cards'],ans:1,exp:'Sau "one" dùng danh từ số ít.'},
+            {type:'mcq',part:3,q:'It is _____ turn.',opts:['your','you','yours',"yours'"],ans:0,exp:'"Your turn" là cụm cố định nghĩa là "đến lượt bạn".'},
+        ];
+
+        const svgs = {
+            card: `<svg viewBox="0 0 100 140" width="100" height="140"><defs><style>.card-white{fill:#fff}.card-black{stroke:#000;stroke-width:2.5;stroke-linejoin:round}</style></defs><rect x="10" y="10" width="80" height="120" class="card-white card-black"/><text x="50" y="35" text-anchor="middle" font-size="28" font-weight="bold" fill="#E91E63">♥</text><text x="20" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#E91E63">♥</text><text x="80" y="130" text-anchor="middle" font-size="16" font-weight="bold" fill="#E91E63">♥</text></svg>`,
+            doll: `<svg viewBox="0 0 100 130" width="100" height="130"><defs><style>.doll-outline{stroke:#000;stroke-width:2.5;stroke-linejoin:round}</style></defs><circle cx="50" cy="28" r="18" class="doll-outline" fill="#f4d399"/><circle cx="42" cy="25" r="2.5" fill="#000"/><circle cx="58" cy="25" r="2.5" fill="#000"/><circle cx="50" cy="32" r="2" fill="#ff6b9d"/><path d="M 45 36 Q 50 38 55 36" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round"/><polygon points="50,48 35,60 30,85 70,85 65,60" class="doll-outline" fill="#ff69b4"/><rect x="22" y="88" width="8" height="24" class="doll-outline" fill="#000"/><rect x="70" y="88" width="8" height="24" class="doll-outline" fill="#000"/><line x1="32" y1="50" x2="15" y2="65" class="doll-outline"/><line x1="68" y1="50" x2="85" y2="65" class="doll-outline"/><rect x="30" y="8" width="40" height="14" class="doll-outline" fill="#ffeb99"/><circle cx="40" cy="11" r="3" fill="#ffeb99"/><circle cx="50" cy="10" r="3" fill="#ffeb99"/><circle cx="60" cy="11" r="3" fill="#ffeb99"/><circle cx="45" cy="14" r="2.5" fill="#ffeb99"/><circle cx="55" cy="14" r="2.5" fill="#ffeb99"/></svg>`,
+            kite: `<svg viewBox="0 0 100 140" width="100" height="140"><polygon points="50,5 85,50 50,95 15,50" fill="#FF6B6B" stroke="#333" stroke-width="2.5"/><line x1="50" y1="5" x2="50" y2="95" stroke="#333" stroke-width="1.5"/><line x1="15" y1="50" x2="85" y2="50" stroke="#333" stroke-width="1.5"/><line x1="50" y1="95" x2="50" y2="135" stroke="#333" stroke-width="2"/><circle cx="50" cy="108" r="4" fill="#4ECDC4"/><circle cx="50" cy="120" r="4" fill="#FFE66D"/><circle cx="50" cy="132" r="4" fill="#DDA0DD"/></svg>`,
+            ten: `<svg viewBox="0 0 120 80" width="140" height="90"><text x="60" y="65" text-anchor="middle" font-size="60" font-weight="bold" fill="#2196F3" stroke="#1565C0" stroke-width="1.5" font-family="sans-serif">10</text></svg>`
+        };
+
+        let current = 0, score = 0, answers = [];
+        let buildSelected = [];
+
+        const coverPage = document.getElementById('cover-page');
+        const quizArea = document.getElementById('quiz-area');
+        const resultPage = document.getElementById('result-page');
+        const feedbackArea = document.getElementById('feedback-area');
+        const qContent = document.getElementById('question-content');
+
+        document.getElementById('start-btn').addEventListener('click', function(e){
+            e.preventDefault();
+            if(audioCtx.state==='suspended') audioCtx.resume();
+            const val = document.getElementById('password-input').value;
+            if(val===PASS){
+                coverPage.classList.add('hidden');
+                quizArea.classList.remove('hidden');
+                current=0; score=0; answers=[];
+                showQuestion();
+            } else {
+                const err = document.getElementById('password-error');
+                err.classList.remove('hidden');
+                err.parentElement.classList.add('shake');
+                setTimeout(()=>err.parentElement.classList.remove('shake'),500);
+            }
+        });
+
+        document.getElementById('replay-btn').addEventListener('click', function(e){
+            e.preventDefault();
+            resultPage.classList.add('hidden');
+            coverPage.classList.remove('hidden');
+            document.getElementById('password-input').value='';
+            document.getElementById('password-error').classList.add('hidden');
+            document.querySelectorAll('.confetti-piece').forEach(c=>c.remove());
+        });
+
+        function showQuestion(){
+            feedbackArea.classList.add('hidden');
+            const q = questions[current];
+            const pbar = document.getElementById('progress-bar');
+            pbar.style.width = (current/12*100)+'%';
+            document.getElementById('q-number').textContent = 'Câu '+(current+1)+'/12';
+            document.getElementById('q-score').textContent = 'Điểm: '+score;
+
+            let partLabel = current<4?'PART 1: Vocabulary':current<8?'PART 2: Build Sentence':'PART 3: Grammar';
+            let html = '<p class="text-xs font-semibold text-orange-500 mb-2">'+partLabel+'</p>';
+
+            if(q.type==='mcq'){
+                if(q.svg) html += '<div class="flex justify-center mb-4">'+svgs[q.svg]+'</div>';
+                html += '<p class="text-lg font-bold mb-4">'+q.q+'</p>';
+                html += '<div class="grid grid-cols-1 gap-2">';
+                q.opts.forEach((o,i)=>{
+                    html += '<button class="mcq-opt w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-orange-400 hover:bg-orange-50 font-medium transition" data-idx="'+i+'">'+String.fromCharCode(65+i)+'. '+o+'</button>';
+                });
+                html += '</div>';
+            } else {
+                const correct = q.tokens.join('');
+                html += '<p class="text-lg font-bold mb-2">Sắp xếp thành câu đúng:</p>';
+                html += '<div id="answer-area" class="min-h-[48px] border-2 border-dashed border-gray-300 rounded-xl p-3 mb-4 flex flex-wrap gap-1 items-center"></div>';
+                html += '<div id="word-bank" class="flex flex-wrap gap-2 justify-center mb-3"></div>';
+                html += '<button id="reset-build" class="text-sm text-blue-600 underline">Reset</button>';
+            }
+            qContent.innerHTML = html;
+
+            if(q.type==='mcq'){
+                qContent.querySelectorAll('.mcq-opt').forEach(btn=>{
+                    btn.addEventListener('click',function(){
+                        const idx = parseInt(this.dataset.idx);
+                        const isCorrect = idx===q.ans;
+                        if(isCorrect) score++;
+                        answers.push({qNum:current+1,correct:isCorrect,question:q.q});
+                        qContent.querySelectorAll('.mcq-opt').forEach(b=>{b.disabled=true;b.style.pointerEvents='none';});
+                        this.classList.add(isCorrect?'border-green-500':'border-red-500');
+                        this.classList.add(isCorrect?'bg-green-50':'bg-red-50');
+                        const correctBtn = qContent.querySelectorAll('.mcq-opt')[q.ans];
+                        correctBtn.classList.add('border-green-500','bg-green-50');
+                        showFeedback(isCorrect,q.exp);
+                    });
+                });
+            } else {
+                buildSelected = [];
+                renderBuild(q);
+                document.getElementById('reset-build').addEventListener('click',function(){
+                    buildSelected=[];
+                    renderBuild(q);
+                });
+            }
+        }
+
+        function renderBuild(q){
+            const shuffled = shuffle([...q.tokens]);
+            const bank = document.getElementById('word-bank');
+            const area = document.getElementById('answer-area');
+            area.innerHTML='';
+            bank.innerHTML='';
+            buildSelected=[];
+            let available = shuffled.map((t,i)=>({token:t,id:i,used:false}));
+
+            function render(){
+                area.innerHTML='';
+                buildSelected.forEach((s,si)=>{
+                    const span = document.createElement('span');
+                    span.className='word-btn inline-block px-3 py-1 bg-orange-100 border border-orange-300 rounded-lg cursor-pointer font-medium text-sm';
+                    span.textContent=s.token;
+                    span.addEventListener('click',()=>{
+                        buildSelected.splice(si,1);
+                        available.find(a=>a.id===s.id).used=false;
+                        render();
+                        checkBuild(q);
+                    });
+                    area.appendChild(span);
+                });
+                bank.innerHTML='';
+                available.filter(a=>!a.used).forEach(a=>{
+                    const btn=document.createElement('button');
+                    btn.className='word-btn px-4 py-2 bg-blue-100 border-2 border-blue-300 rounded-xl font-semibold cursor-pointer';
+                    btn.textContent=a.token;
+                    btn.addEventListener('click',()=>{
+                        a.used=true;
+                        buildSelected.push({token:a.token,id:a.id});
+                        render();
+                        checkBuild(q);
+                    });
+                    bank.appendChild(btn);
+                });
+            }
+            render();
+        }
+
+        function checkBuild(q){
+            if(buildSelected.length!==q.tokens.length) return;
+            let built = '';
+            buildSelected.forEach((s,i)=>{
+                if(i>0 && s.token!=='.'&&s.token!=='?') built+=' ';
+                built+=s.token;
+            });
+            const correct = q.tokens.reduce((acc,t,i)=>{
+                if(i>0&&t!=='.'&&t!=='?') acc+=' ';
+                return acc+t;
+            },'');
+            const isCorrect = built===correct;
+            if(isCorrect) score++;
+            answers.push({qNum:current+1,correct:isCorrect,question:'Build: '+correct});
+            document.getElementById('word-bank').querySelectorAll('button').forEach(b=>b.disabled=true);
+            document.getElementById('answer-area').querySelectorAll('span').forEach(s=>s.style.pointerEvents='none');
+            const resetBtn=document.getElementById('reset-build');
+            if(resetBtn)resetBtn.style.display='none';
+            showFeedback(isCorrect,q.exp);
+        }
+
+        function showFeedback(isCorrect,exp){
+            if(isCorrect){playCorrect();qContent.classList.add('correct-flash');}
+            else{playIncorrect();qContent.classList.add('incorrect-flash');}
+            setTimeout(()=>qContent.classList.remove('correct-flash','incorrect-flash'),600);
+
+            feedbackArea.classList.remove('hidden','pop');
+            void feedbackArea.offsetWidth;
+            feedbackArea.classList.add('pop');
+            feedbackArea.className = feedbackArea.className.replace(/bg-\S+/g,'');
+            feedbackArea.classList.add(isCorrect?'bg-green-50':'bg-red-50');
+            feedbackArea.style.border = '2px solid '+(isCorrect?'#22c55e':'#ef4444');
+
+            let fb = '<p class="text-xl font-bold '+(isCorrect?'text-green-600':'text-red-600')+'">'+(isCorrect?'✅ Chính xác':'❌ Chưa chính xác')+'</p>';
+            fb += '<p class="text-sm text-gray-700">'+exp+'</p>';
+            fb += '<button id="next-btn" class="mt-2 w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-lg cursor-pointer">➡ Câu tiếp theo</button>';
+            feedbackArea.innerHTML=fb;
+
+            document.getElementById('next-btn').addEventListener('click',function(){
+                current++;
+                if(current>=12) showResult();
+                else showQuestion();
+            });
+        }
+
+        function showResult(){
+            quizArea.classList.add('hidden');
+            resultPage.classList.remove('hidden');
+            playCelebration();
+            spawnConfetti();
+            const pct = Math.round(score/12*100);
+            document.getElementById('result-score').textContent=score+' / 12';
+            document.getElementById('result-percent').textContent=pct+'%';
+            let perf='';
+            if(score===12)perf='Xuất sắc!';
+            else if(score>=10)perf='Rất tốt!';
+            else if(score>=7)perf='Tốt!';
+            else if(score>=4)perf='Cần luyện thêm.';
+            else perf='Hãy cố gắng nhé!';
+            document.getElementById('result-performance').textContent=perf;
+
+            let details='<p class="font-bold text-green-600">✅ Câu đúng:</p><ul class="ml-4 list-disc">';
+            answers.filter(a=>a.correct).forEach(a=>{details+='<li>Câu '+a.qNum+'</li>';});
+            details+='</ul><p class="font-bold text-red-600 mt-2">❌ Câu sai:</p><ul class="ml-4 list-disc">';
+            const wrong=answers.filter(a=>!a.correct);
+            if(wrong.length===0) details+='<li>Không có!</li>';
+            else wrong.forEach(a=>{details+='<li>Câu '+a.qNum+'</li>';});
+            details+='</ul>';
+            document.getElementById('result-details').innerHTML=details;
+        }
+
+        function spawnConfetti(){
+            const colors=['#FF6B6B','#4ECDC4','#FFE66D','#A8E6CF','#DDA0DD','#87CEEB','#FF9F43'];
+            for(let i=0;i<60;i++){
+                const c=document.createElement('div');
+                c.className='confetti-piece';
+                c.style.left=Math.random()*100+'vw';
+                c.style.background=colors[Math.floor(Math.random()*colors.length)];
+                c.style.animationDelay=Math.random()*2+'s';
+                c.style.borderRadius=Math.random()>0.5?'50%':'0';
+                document.body.appendChild(c);
+            }
+            setTimeout(()=>document.querySelectorAll('.confetti-piece').forEach(c=>c.remove()),5000);
+        }
+    })();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a125a4fe67761f9f',t:'MTc4MjU3NTgxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
