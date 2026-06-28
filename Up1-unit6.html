@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 6: The Zoo</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/editing_sdk.js"></script>
+  <style>
+* { font-family: 'DM Sans', sans-serif; }
+.page { display: none; }
+.page.active { display: flex; flex-direction: column; align-items: center; }
+.opt-btn { transition: all 0.2s; }
+.opt-btn:hover { transform: scale(1.05); }
+.opt-btn:active { transform: scale(0.95); }
+.opt-btn.correct { background: #22c55e !important; color: #fff !important; }
+.opt-btn.wrong { background: #ef4444 !important; color: #fff !important; }
+.opt-btn.show-correct { outline: 3px solid #22c55e; }
+.word-btn { transition: all 0.15s; cursor: pointer; }
+.word-btn:hover { transform: translateY(-2px); }
+.word-btn.used { opacity: 0.3; pointer-events: none; }
+.ans-word { animation: popIn 0.2s ease; }
+@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.4s ease; }
+.next-btn:hover { transform: scale(1.05); }
+.next-btn:active { transform: scale(0.95); }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen flex flex-col" style="padding-top:70px; padding-bottom:60px; box-sizing:border-box;">
+  <header id="app-header" style="position:fixed; top:0; left:0; width:100%; height:60px; background:#d32f2f; color:#ffffff; font-family:Arial,Helvetica,sans-serif; font-size:14px; font-weight:bold; padding:0 20px; box-sizing:border-box; display:flex; justify-content:space-between; align-items:center; z-index:99999; box-shadow:0 2px 8px rgba(0,0,0,0.15);"><span>Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span>Up 1 - Unit 6</span>
+  </header><!-- MAIN CONTENT -->
+  <main class="flex-1 mt-12 mb-12 p-4 flex justify-center items-start">
+   <div class="w-full max-w-2xl">
+    <!-- COVER PAGE -->
+    <div id="cover" class="page active fade-in text-center py-12 gap-4">
+     <h1 data-template-id="cover-title" class="canva-text text-4xl md:text-5xl font-bold" style="color:#00695c;font-family:Arial,Helvetica,Verdana,sans-serif;">Unit 6: The Zoo</h1>
+     <p data-template-id="cover-subtitle" class="canva-text text-lg mt-4" style="color:#424242;font-family:Arial,Helvetica,Verdana,sans-serif;">Nhập mật khẩu để bắt đầu bài luyện tập</p>
+     <div class="mt-6 flex flex-col items-center gap-3">
+      <input id="pw-input" type="password" placeholder="Nhập mật khẩu..." class="px-4 py-3 rounded-xl border-2 border-gray-300 text-center text-lg w-64 focus:outline-none focus:border-blue-400" style="font-family:Arial,Helvetica,Verdana,sans-serif;color:#000;">
+      <p id="pw-error" class="text-red-500 font-medium" style="display:none;font-family:Arial,Helvetica,Verdana,sans-serif;">❌ Sai mật khẩu!</p><button id="start-btn" class="opt-btn bg-green-500 text-white font-bold px-8 py-3 rounded-xl text-lg shadow-lg" style="font-family:Arial,Helvetica,Verdana,sans-serif;">🔓 BẮT ĐẦU</button>
+     </div>
+    </div><!-- Q1 -->
+    <div id="q1" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 1/12 – Vocabulary</p>
+     <div class="text-6xl my-4">
+      🐒
+     </div>
+     <p class="font-semibold text-lg">What animal is this?</p>
+     <div class="grid grid-cols-2 gap-3 mt-4 w-full max-w-md mx-auto" id="q1-opts">
+      <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(1,'A')">A. tiger</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(1,'B')">B. monkey</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(1,'C')">C. lion</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(1,'D')">D. bear</button>
+     </div>
+     <div id="q1-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q1-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q2')">➡ Câu tiếp theo</button>
+    </div><!-- Q2 -->
+    <div id="q2" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 2/12 – Vocabulary</p>
+     <div class="text-6xl my-4">
+      🦒
+     </div>
+     <p class="font-semibold text-lg">What animal is this?</p>
+     <div class="grid grid-cols-2 gap-3 mt-4 w-full max-w-md mx-auto" id="q2-opts">
+      <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(2,'A')">A. zebra</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(2,'B')">B. elephant</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(2,'C')">C. giraffe</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(2,'D')">D. kangaroo</button>
+     </div>
+     <div id="q2-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q2-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q3')">➡ Câu tiếp theo</button>
+    </div><!-- Q3 -->
+    <div id="q3" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 3/12 – Vocabulary</p>
+     <div class="text-6xl my-4">
+      🐧
+     </div>
+     <p class="font-semibold text-lg">What animal is this?</p>
+     <div class="grid grid-cols-2 gap-3 mt-4 w-full max-w-md mx-auto" id="q3-opts">
+      <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(3,'A')">A. snake</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(3,'B')">B. penguin</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(3,'C')">C. bear</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(3,'D')">D. tiger</button>
+     </div>
+     <div id="q3-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q3-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q4')">➡ Câu tiếp theo</button>
+    </div><!-- Q4 -->
+    <div id="q4" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 4/12 – Vocabulary</p>
+     <div class="text-6xl my-4">
+      🦓
+     </div>
+     <p class="font-semibold text-lg">What animal is this?</p>
+     <div class="grid grid-cols-2 gap-3 mt-4 w-full max-w-md mx-auto" id="q4-opts">
+      <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(4,'A')">A. lion</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(4,'B')">B. zebra</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(4,'C')">C. monkey</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium" onclick="checkMC(4,'D')">D. elephant</button>
+     </div>
+     <div id="q4-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q4-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q5')">➡ Câu tiếp theo</button>
+    </div><!-- Q5 - Build Sentence -->
+    <div id="q5" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 5/12 – Build the sentence</p>
+     <p class="font-semibold text-lg">Sắp xếp các từ thành câu đúng:</p>
+     <div id="q5-answer" class="min-h-[48px] flex flex-wrap gap-2 p-3 mt-4 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50 w-full max-w-md mx-auto justify-center items-center"></div>
+     <div id="q5-bank" class="flex flex-wrap gap-2 mt-4 justify-center w-full max-w-md mx-auto">
+      <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(5,this)">in</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(5,this)">The</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(5,this)">.</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(5,this)">tree</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(5,this)">monkey</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(5,this)">the</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(5,this)">is</button>
+     </div>
+     <div class="flex gap-3 mt-4">
+      <button id="q5-undo" class="opt-btn bg-gray-200 font-bold px-4 py-2 rounded-xl" onclick="undoWord(5)">↩ Undo</button> <button id="q5-check" class="opt-btn bg-green-500 text-white font-bold px-4 py-2 rounded-xl" onclick="checkBuild(5)">✔ Kiểm tra</button>
+     </div>
+     <div id="q5-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q5-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q6')">➡ Câu tiếp theo</button>
+    </div><!-- Q6 -->
+    <div id="q6" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 6/12 – Build the sentence</p>
+     <p class="font-semibold text-lg">Sắp xếp các từ thành câu đúng:</p>
+     <div id="q6-answer" class="min-h-[48px] flex flex-wrap gap-2 p-3 mt-4 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50 w-full max-w-md mx-auto justify-center items-center"></div>
+     <div id="q6-bank" class="flex flex-wrap gap-2 mt-4 justify-center w-full max-w-md mx-auto">
+      <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(6,this)">monkey</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(6,this)">?</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(6,this)">Where</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(6,this)">the</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(6,this)">is</button>
+     </div>
+     <div class="flex gap-3 mt-4">
+      <button id="q6-undo" class="opt-btn bg-gray-200 font-bold px-4 py-2 rounded-xl" onclick="undoWord(6)">↩ Undo</button> <button id="q6-check" class="opt-btn bg-green-500 text-white font-bold px-4 py-2 rounded-xl" onclick="checkBuild(6)">✔ Kiểm tra</button>
+     </div>
+     <div id="q6-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q6-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q7')">➡ Câu tiếp theo</button>
+    </div><!-- Q7 -->
+    <div id="q7" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 7/12 – Build the sentence</p>
+     <p class="font-semibold text-lg">Sắp xếp các từ thành câu đúng:</p>
+     <div id="q7-answer" class="min-h-[48px] flex flex-wrap gap-2 p-3 mt-4 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50 w-full max-w-md mx-auto justify-center items-center"></div>
+     <div id="q7-bank" class="flex flex-wrap gap-2 mt-4 justify-center w-full max-w-md mx-auto">
+      <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(7,this)">the</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(7,this)">.</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(7,this)">They're</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(7,this)">rock</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(7,this)">on</button>
+     </div>
+     <div class="flex gap-3 mt-4">
+      <button id="q7-undo" class="opt-btn bg-gray-200 font-bold px-4 py-2 rounded-xl" onclick="undoWord(7)">↩ Undo</button> <button id="q7-check" class="opt-btn bg-green-500 text-white font-bold px-4 py-2 rounded-xl" onclick="checkBuild(7)">✔ Kiểm tra</button>
+     </div>
+     <div id="q7-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q7-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q8')">➡ Câu tiếp theo</button>
+    </div><!-- Q8 -->
+    <div id="q8" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 8/12 – Build the sentence</p>
+     <p class="font-semibold text-lg">Sắp xếp các từ thành câu đúng:</p>
+     <div id="q8-answer" class="min-h-[48px] flex flex-wrap gap-2 p-3 mt-4 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50 w-full max-w-md mx-auto justify-center items-center"></div>
+     <div id="q8-bank" class="flex flex-wrap gap-2 mt-4 justify-center w-full max-w-md mx-auto">
+      <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(8,this)">run</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(8,this)">Can</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(8,this)">?</button> <button class="word-btn bg-yellow-100 border-2 border-yellow-300 rounded-lg px-3 py-2 font-medium" onclick="pickWord(8,this)">zebras</button>
+     </div>
+     <div class="flex gap-3 mt-4">
+      <button id="q8-undo" class="opt-btn bg-gray-200 font-bold px-4 py-2 rounded-xl" onclick="undoWord(8)">↩ Undo</button> <button id="q8-check" class="opt-btn bg-green-500 text-white font-bold px-4 py-2 rounded-xl" onclick="checkBuild(8)">✔ Kiểm tra</button>
+     </div>
+     <div id="q8-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q8-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q9')">➡ Câu tiếp theo</button>
+    </div><!-- Q9 -->
+    <div id="q9" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 9/12 – Multiple Choice</p>
+     <p class="font-semibold text-lg">Look at the picture and choose the correct answer.</p><!-- Illustration: monkey in tree with rock nearby -->
+     <div class="my-4 p-4 bg-green-50 rounded-2xl border-2 border-green-200 w-full max-w-xs mx-auto">
+      <div class="relative h-40 flex items-end justify-center">
+       <div class="absolute left-1/2 -translate-x-1/2 bottom-0 w-20 h-12 bg-gray-400 rounded-t-full"></div>
+       <div class="absolute left-1/2 -translate-x-1/4 bottom-8 flex flex-col items-center">
+        <div class="w-16 h-24 bg-green-600 rounded-full relative">
+         <div class="absolute -top-2 left-1/2 -translate-x-1/2 text-3xl">
+          🐒
+         </div>
+        </div>
+        <div class="w-2 h-16 bg-yellow-800"></div>
+       </div>
+      </div>
+     </div>
+     <p class="font-medium">Where is the monkey?</p>
+     <div class="grid grid-cols-1 gap-2 mt-3 w-full max-w-md mx-auto" id="q9-opts">
+      <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(9,'A')">A. It's on the rock.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(9,'B')">B. It's under the tree.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(9,'C')">C. It's in the tree.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(9,'D')">D. It's behind the rock.</button>
+     </div>
+     <div id="q9-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q9-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q10')">➡ Câu tiếp theo</button>
+    </div><!-- Q10 -->
+    <div id="q10" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 10/12 – Multiple Choice</p>
+     <p class="font-semibold text-lg">Can zebras run?</p>
+     <div class="grid grid-cols-1 gap-2 mt-4 w-full max-w-md mx-auto" id="q10-opts">
+      <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(10,'A')">A. Yes, they can.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(10,'B')">B. Yes, they do.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(10,'C')">C. Yes, they are.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(10,'D')">D. Yes, they have.</button>
+     </div>
+     <div id="q10-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q10-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q11')">➡ Câu tiếp theo</button>
+    </div><!-- Q11 -->
+    <div id="q11" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 11/12 – Multiple Choice</p>
+     <p class="font-semibold text-lg">Look at the picture and choose the correct answer.</p>
+     <div class="my-4 p-4 bg-amber-50 rounded-2xl border-2 border-amber-200 w-full max-w-xs mx-auto">
+      <div class="relative h-32 flex items-end justify-center bg-gradient-to-b from-sky-100 to-amber-100 rounded-xl">
+       <svg viewbox="0 0 200 120" class="w-full h-full" style="max-width:200px;"><!-- Rock base: irregular natural rock shape --> <path d="M 30 100 Q 20 85 35 75 Q 50 65 70 70 Q 85 60 95 75 Q 110 70 125 80 Q 140 75 160 85 Q 170 95 165 110 Q 150 120 130 118 Q 100 125 70 120 Q 50 122 30 100 Z" fill="#9ca3af" stroke="#78716c" stroke-width="1" /> <!-- Rock texture/shadow for depth --> <path d="M 50 90 Q 60 80 75 85 Q 85 75 95 80" fill="none" stroke="#6b7280" stroke-width="0.5" opacity="0.6" /> <!-- Snake 1 (left) --> <g>
+         <ellipse cx="50" cy="78" rx="12" ry="8" fill="#10b981" />
+         <circle cx="45" cy="75" r="5" fill="#059669" />
+         <circle cx="47" cy="74" r="2" fill="#000" />
+        </g> <!-- Snake 2 (center) --> <g>
+         <ellipse cx="100" cy="75" rx="14" ry="8" fill="#10b981" />
+         <circle cx="95" cy="72" r="5" fill="#059669" />
+         <circle cx="97" cy="71" r="2" fill="#000" />
+        </g> <!-- Snake 3 (right) --> <g>
+         <ellipse cx="150" cy="80" rx="12" ry="8" fill="#10b981" />
+         <circle cx="145" cy="77" r="5" fill="#059669" />
+         <circle cx="147" cy="76" r="2" fill="#000" />
+        </g>
+       </svg>
+      </div>
+     </div>
+     <p class="font-medium">Where are the snakes?</p>
+     <div class="grid grid-cols-1 gap-2 mt-3 w-full max-w-md mx-auto" id="q11-opts">
+      <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(11,'A')">A. They're in the tree.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(11,'B')">B. They're under the rock.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(11,'C')">C. They're on the rock.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(11,'D')">D. They're behind the rock.</button>
+     </div>
+     <div id="q11-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q11-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="goTo('q12')">➡ Câu tiếp theo</button>
+    </div><!-- Q12 -->
+    <div id="q12" class="page fade-in text-center py-6 gap-4">
+     <p class="text-sm font-bold text-gray-500">Câu 12/12 – Multiple Choice</p>
+     <p class="font-semibold text-lg">"I'm sorry."</p>
+     <div class="grid grid-cols-1 gap-2 mt-4 w-full max-w-md mx-auto" id="q12-opts">
+      <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(12,'A')">A. That's OK.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(12,'B')">B. Goodbye.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(12,'C')">C. Thank you.</button> <button class="opt-btn bg-white border-2 border-gray-200 rounded-xl py-3 px-4 font-medium text-left" onclick="checkMC(12,'D')">D. Hello.</button>
+     </div>
+     <div id="q12-fb" style="display:none;" class="mt-4 p-4 rounded-xl bg-gray-50 text-left w-full max-w-md mx-auto"></div><button id="q12-next" class="next-btn mt-4 bg-blue-500 text-white font-bold px-6 py-3 rounded-xl" style="display:none;" onclick="showResult()">➡ Xem kết quả</button>
+    </div><!-- RESULT -->
+    <div id="result" class="page fade-in text-center py-8 gap-4">
+     <p class="text-5xl">🎉</p>
+     <h2 class="text-2xl font-bold mt-2">Hoàn thành bài luyện tập!</h2>
+     <div class="mt-4 p-6 bg-white rounded-2xl shadow-lg w-full max-w-sm mx-auto">
+      <p class="text-4xl font-bold" id="result-score"></p>
+      <p class="mt-2" id="result-detail"></p>
+      <p class="text-2xl mt-3" id="result-comment"></p>
+     </div><button class="opt-btn mt-6 bg-orange-500 text-white font-bold px-8 py-3 rounded-xl text-lg shadow-lg" onclick="resetAll()">🔄 LÀM LẠI</button>
+    </div>
+   </div>
+  </main>
+  <script>
+// Data
+var answers = {1:'B',2:'C',3:'B',4:'B',9:'C',10:'A',11:'C',12:'A'};
+var buildAnswers = {5:'The monkey is in the tree.',6:'Where is the monkey?',7:"They're on the rock.",8:'Can zebras run?'};
+var explanations = {
+1:'<strong>✅ Đáp án: B. monkey</strong><br>Đây là con khỉ (monkey). Con khỉ có đuôi dài và thích leo trèo.',
+2:'<strong>✅ Đáp án: C. giraffe</strong><br>Đây là con hươu cao cổ (giraffe). Nó có cổ rất dài.',
+3:'<strong>✅ Đáp án: B. penguin</strong><br>Đây là con chim cánh cụt (penguin). Nó sống ở nơi lạnh.',
+4:'<strong>✅ Đáp án: B. zebra</strong><br>Đây là con ngựa vằn (zebra). Nó có sọc đen trắng.',
+5:'<strong>✅ Đáp án: The monkey is in the tree.</strong><br>Con khỉ ở trên cây. Dùng "in the tree" để nói ở trên cây.',
+6:'<strong>✅ Đáp án: Where is the monkey?</strong><br>Hỏi vị trí: Where + is + con vật?',
+7:'<strong>✅ Đáp án: They\'re on the rock.</strong><br>Chúng ở trên tảng đá. Dùng "on" khi ở trên bề mặt.',
+8:'<strong>✅ Đáp án: Can zebras run?</strong><br>Hỏi khả năng: Can + chủ ngữ + động từ?',
+9:'<strong>✅ Đáp án: C. It\'s in the tree.</strong><br>Quan sát tranh: con khỉ đang ở trên cây. Mẫu câu: The monkey is in the tree.',
+10:'<strong>✅ Đáp án: A. Yes, they can.</strong><br>Câu hỏi với "Can" → trả lời: Yes, they can. / No, they can\'t.',
+11:'<strong>✅ Đáp án: C. They\'re on the rock.</strong><br>Quan sát tranh: các con rắn nằm trên tảng đá → They\'re on the rock.',
+12:'<strong>✅ Đáp án: A. That\'s OK.</strong><br>Khi ai nói "I\'m sorry", câu đáp lịch sự là "That\'s OK."'
+};
+
+var score = 0;
+var locked = {};
+var buildState = {5:[],6:[],7:[],8:[]};
+
+// Audio
+var audioCtx = null;
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playCorrect(){var c=getCtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(523,c.currentTime);o.frequency.setValueAtTime(659,c.currentTime+0.15);o.frequency.setValueAtTime(784,c.currentTime+0.3);g.gain.setValueAtTime(0.3,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.8);o.start(c.currentTime);o.stop(c.currentTime+0.8);}
+function playWrong(){var c=getCtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='square';o.frequency.setValueAtTime(200,c.currentTime);o.frequency.setValueAtTime(150,c.currentTime+0.2);g.gain.setValueAtTime(0.2,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.5);o.start(c.currentTime);o.stop(c.currentTime+0.5);}
+function playWin(){var c=getCtx(),t=c.currentTime;[523,659,784,1047].forEach(function(f,i){var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.3,t+i*0.2);g.gain.exponentialRampToValueAtTime(0.01,t+i*0.2+0.6);o.start(t+i*0.2);o.stop(t+i*0.2+0.6);});}
+
+</script>
+  <footer id="app-footer" style="position:fixed; bottom:0; left:0; width:100%; height:45px; background:#d32f2f; color:#ffffff; font-family:Arial,Helvetica,sans-serif; font-size:14px; font-weight:bold; padding:0 20px; box-sizing:border-box; display:flex; justify-content:space-between; align-items:center; z-index:99999; box-shadow:0 -2px 8px rgba(0,0,0,0.15);"><span>Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span>Up 1 - Unit 6</span>
+  </footer>
+  <script>
+// Password
+document.getElementById('start-btn').addEventListener('click', function(){
+  var pw = document.getElementById('pw-input').value;
+  if(pw === '1379'){
+    document.getElementById('pw-error').style.display='none';
+    goTo('q1');
+  } else {
+    document.getElementById('pw-error').style.display='block';
+  }
+});
+
+// Navigation
+function goTo(id){
+  var pages = document.querySelectorAll('.page');
+  for(var i=0;i<pages.length;i++) pages[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// MC Check
+function checkMC(q, choice){
+  if(locked[q]) return;
+  locked[q] = true;
+  var correct = answers[q];
+  var isCorrect = choice === correct;
+  if(isCorrect) score++;
+  var opts = document.getElementById('q'+q+'-opts').children;
+  var letters = ['A','B','C','D'];
+  for(var i=0;i<opts.length;i++){
+    opts[i].disabled = true;
+    if(letters[i]===correct) opts[i].classList.add('show-correct');
+    if(letters[i]===choice && !isCorrect) opts[i].classList.add('wrong');
+    if(letters[i]===choice && isCorrect) opts[i].classList.add('correct');
+  }
+  var fb = document.getElementById('q'+q+'-fb');
+  fb.style.display='block';
+  fb.innerHTML = (isCorrect?'<p class="text-green-600 font-bold">✅ Chính xác!</p>':'<p class="text-red-500 font-bold">❌ Chưa chính xác</p>') + '<div class="mt-2 text-sm">'+explanations[q]+'</div>';
+  document.getElementById('q'+q+'-next').style.display='inline-block';
+  if(isCorrect) playCorrect(); else playWrong();
+}
+
+// Build Sentence
+function pickWord(q, btn){
+  if(locked[q]) return;
+  btn.classList.add('used');
+  var word = btn.textContent;
+  buildState[q].push({word:word, btn:btn});
+  var span = document.createElement('span');
+  span.className='ans-word bg-blue-200 rounded-lg px-2 py-1 font-medium text-sm';
+  span.textContent = word;
+  document.getElementById('q'+q+'-answer').appendChild(span);
+}
+function undoWord(q){
+  if(locked[q]) return;
+  var st = buildState[q];
+  if(st.length===0) return;
+  var last = st.pop();
+  last.btn.classList.remove('used');
+  var area = document.getElementById('q'+q+'-answer');
+  if(area.lastChild) area.removeChild(area.lastChild);
+}
+function checkBuild(q){
+  if(locked[q]) return;
+  locked[q] = true;
+  var st = buildState[q];
+  var userWords = st.map(function(s){return s.word;});
+  var userAns = userWords.join(' ').trim().replace(/\s+/g,' ').replace(/\s+([.?])/g,'$1');
+  var expectedAns = buildAnswers[q].trim().replace(/\s+/g,' ').replace(/\s+([.?])/g,'$1');
+  var isCorrect = userAns === expectedAns;
+  if(isCorrect) score++;
+  // Disable buttons
+  var bank = document.getElementById('q'+q+'-bank').children;
+  for(var i=0;i<bank.length;i++) bank[i].disabled=true;
+  document.getElementById('q'+q+'-undo').disabled=true;
+  document.getElementById('q'+q+'-check').disabled=true;
+  var fb = document.getElementById('q'+q+'-fb');
+  fb.style.display='block';
+  fb.innerHTML = (isCorrect?'<p class="text-green-600 font-bold">✅ Chính xác!</p>':'<p class="text-red-500 font-bold">❌ Chưa chính xác</p>') + '<div class="mt-2 text-sm">'+explanations[q]+'</div>';
+  document.getElementById('q'+q+'-next').style.display='inline-block';
+  if(isCorrect) playCorrect(); else playWrong();
+}
+
+// Result
+function showResult(){
+  goTo('result');
+  playWin();
+  var pct = Math.round(score/12*100);
+  document.getElementById('result-score').textContent = score + '/12';
+  document.getElementById('result-detail').textContent = 'Đúng: '+score+' | Sai: '+(12-score)+' | Tỷ lệ: '+pct+'%';
+  var comment = '';
+  if(score===12) comment='🌟 Xuất sắc!';
+  else if(score>=10) comment='🎉 Rất tốt!';
+  else if(score>=8) comment='👍 Khá tốt!';
+  else if(score>=6) comment='😊 Cần cố gắng thêm.';
+  else comment='💪 Hãy luyện tập lại nhé!';
+  document.getElementById('result-comment').textContent = comment;
+}
+
+// Reset
+function resetAll(){
+  score=0; locked={}; buildState={5:[],6:[],7:[],8:[]};
+  // Reset MC options
+  for(var q in answers){
+    var opts=document.getElementById('q'+q+'-opts');
+    if(opts){for(var i=0;i<opts.children.length;i++){var b=opts.children[i];b.disabled=false;b.classList.remove('correct','wrong','show-correct');}}
+    var fb=document.getElementById('q'+q+'-fb');if(fb)fb.style.display='none';
+    var nx=document.getElementById('q'+q+'-next');if(nx)nx.style.display='none';
+  }
+  // Reset build
+  [5,6,7,8].forEach(function(q){
+    var area=document.getElementById('q'+q+'-answer');
+    while(area.firstChild)area.removeChild(area.firstChild);
+    var bank=document.getElementById('q'+q+'-bank').children;
+    for(var i=0;i<bank.length;i++){bank[i].classList.remove('used');bank[i].disabled=false;}
+    document.getElementById('q'+q+'-undo').disabled=false;
+    document.getElementById('q'+q+'-check').disabled=false;
+    var fb=document.getElementById('q'+q+'-fb');fb.style.display='none';
+    var nx=document.getElementById('q'+q+'-next');nx.style.display='none';
+  });
+  document.getElementById('pw-input').value='';
+  goTo('cover');
+}
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a12ae91d4378ff81',t:'MTc4MjYzMTAzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
