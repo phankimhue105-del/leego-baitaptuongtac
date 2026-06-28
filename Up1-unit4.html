@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 4: Home</title>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:#f0f7ff;min-height:calc(100 * min(var(--vh,1vh),1vh));padding-top:56px;padding-bottom:48px}
+.site-header{position:fixed;top:0;left:0;right:0;height:56px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:1000;font-size:14px;font-weight:600}
+.site-footer{position:fixed;bottom:0;left:0;right:0;height:48px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:1000;font-size:13px}
+.page{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100 * min(var(--vh,1vh),1vh) - 104px);padding:24px;animation:fadeIn .4s}
+.page.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.cover-title{font-size:2.2rem;font-weight:800;color:#4f46e5;margin-bottom:8px}
+.cover-sub{font-size:1.1rem;color:#555;margin-bottom:24px}
+.pw-input{padding:12px 20px;border:2px solid #c7d2fe;border-radius:12px;font-size:1.1rem;width:240px;text-align:center;outline:none;transition:.2s}
+.pw-input:focus{border-color:#4f46e5}
+.btn{padding:12px 28px;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{transform:scale(1.04)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:#4f46e5;color:#fff}
+.btn-success{background:#10b981;color:#fff}
+.btn-orange{background:#f59e0b;color:#fff}
+.error-msg{color:#ef4444;font-weight:600;margin-top:8px;min-height:24px}
+.q-card{background:#fff;border-radius:20px;padding:28px;max-width:600px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.q-num{font-size:.85rem;color:#7c3aed;font-weight:700;margin-bottom:8px}
+.q-text{font-size:1.15rem;font-weight:600;color:#1e293b;margin-bottom:16px}
+.q-picture{font-size:4rem;text-align:center;margin-bottom:12px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-btn{padding:12px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:1rem;cursor:pointer;transition:.15s;font-weight:500}
+.opt-btn:hover:not(.locked){background:#ede9fe;border-color:#a78bfa}
+.opt-btn.correct{background:#d1fae5;border-color:#10b981;color:#065f46}
+.opt-btn.wrong{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.opt-btn.locked{cursor:default}
+.feedback{margin-top:16px;padding:14px;border-radius:12px;font-weight:600;font-size:.95rem}
+.feedback.correct-fb{background:#d1fae5;color:#065f46}
+.feedback.wrong-fb{background:#fee2e2;color:#991b1b}
+.explanation{margin-top:12px;padding:14px;background:#f5f3ff;border-radius:12px;font-size:.9rem;color:#4c1d95;line-height:1.6}
+.next-btn-wrap{margin-top:16px;text-align:center}
+.sentence-zone{min-height:48px;border:2px dashed #c7d2fe;border-radius:12px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.word-pool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.word-chip{padding:8px 14px;background:#ede9fe;border-radius:10px;cursor:pointer;font-weight:600;font-size:.95rem;transition:.15s;user-select:none}
+.word-chip:hover{background:#c4b5fd}
+.word-chip.used{opacity:.3;pointer-events:none}
+.word-chip.in-answer{background:#4f46e5;color:#fff}
+.result-box{text-align:center}
+.result-box h2{font-size:2rem;color:#4f46e5;margin-bottom:12px}
+.result-score{font-size:3rem;font-weight:800;color:#10b981}
+.result-detail{margin:12px 0;font-size:1rem;color:#555}
+.result-comment{font-size:1.3rem;font-weight:700;color:#7c3aed;margin:16px 0}
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root">
+  <header class="site-header"><span data-template-id="header-left" class="canva-text">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span data-template-id="header-right" class="canva-text">Up 1 - Unit 4</span>
+  </header>
+  <footer class="site-footer"><span data-template-id="footer-left" class="canva-text">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span data-template-id="footer-right" class="canva-text">Up 1 - Unit 4</span>
+  </footer><!-- COVER -->
+  <div id="cover" class="page active">
+   <div class="q-card" style="text-align:center">
+    <h1 class="cover-title" data-template-id="cover-title">Unit 4: Home</h1>
+    <p class="cover-sub">Nhập mật khẩu để bắt đầu.</p><input type="password" id="pw" class="pw-input" placeholder="Mật khẩu"> <br><br><button class="btn btn-primary" onclick="checkPw()">🔓 BẮT ĐẦU</button>
+    <p id="pw-error" class="error-msg"></p>
+   </div>
+  </div><!-- Q1 Picture MCQ -->
+  <div id="q1" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 1/12 — Vocabulary
+    </div>
+    <div class="q-picture">
+     👩
+    </div>
+    <div class="q-text">
+     Đây là từ gì?
+    </div>
+    <div class="options"><button class="opt-btn" onclick="answer(1,this,'B')">A. father</button> <button class="opt-btn" onclick="answer(1,this,'B')">B. mother</button> <button class="opt-btn" onclick="answer(1,this,'B')">C. brother</button> <button class="opt-btn" onclick="answer(1,this,'B')">D. sister</button>
+    </div>
+    <div id="fb1" class="feedback" style="display:none"></div>
+    <div id="ex1" class="explanation" style="display:none">
+     Đáp án đúng: <b>mother</b><br>
+      Giải thích: Mother nghĩa là mẹ. Hình vẽ mô tả một người phụ nữ — đó là mẹ.
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb1" class="btn btn-success" style="display:none" onclick="goTo('q2')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q2 -->
+  <div id="q2" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 2/12 — Vocabulary
+    </div>
+    <div class="q-picture">
+     👴
+    </div>
+    <div class="q-text">
+     Đây là từ gì?
+    </div>
+    <div class="options"><button class="opt-btn" onclick="answer(2,this,'C')">A. father</button> <button class="opt-btn" onclick="answer(2,this,'C')">B. brother</button> <button class="opt-btn" onclick="answer(2,this,'C')">C. grandfather</button> <button class="opt-btn" onclick="answer(2,this,'C')">D. sister</button>
+    </div>
+    <div id="fb2" class="feedback" style="display:none"></div>
+    <div id="ex2" class="explanation" style="display:none">
+     Đáp án đúng: <b>grandfather</b><br>
+      Giải thích: Grandfather nghĩa là ông nội/ông ngoại.
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb2" class="btn btn-success" style="display:none" onclick="goTo('q3')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q3 -->
+  <div id="q3" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 3/12 — Vocabulary
+    </div>
+    <div class="q-picture">
+     🍕
+    </div>
+    <div class="q-text">
+     Đây là từ gì?
+    </div>
+    <div class="options"><button class="opt-btn" onclick="answer(3,this,'A')">A. pizza</button> <button class="opt-btn" onclick="answer(3,this,'A')">B. bread</button> <button class="opt-btn" onclick="answer(3,this,'A')">C. rice</button> <button class="opt-btn" onclick="answer(3,this,'A')">D. cake</button>
+    </div>
+    <div id="fb3" class="feedback" style="display:none"></div>
+    <div id="ex3" class="explanation" style="display:none">
+     Đáp án đúng: <b>pizza</b><br>
+      Giải thích: Pizza nghĩa là bánh pizza. Hình vẽ là một chiếc pizza.
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb3" class="btn btn-success" style="display:none" onclick="goTo('q4')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q4 -->
+  <div id="q4" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 4/12 — Vocabulary
+    </div>
+    <div class="q-picture">
+     🧃
+    </div>
+    <div class="q-text">
+     Đây là từ gì?
+    </div>
+    <div class="options"><button class="opt-btn" onclick="answer(4,this,'D')">A. chicken</button> <button class="opt-btn" onclick="answer(4,this,'D')">B. fish</button> <button class="opt-btn" onclick="answer(4,this,'D')">C. ice cream</button> <button class="opt-btn" onclick="answer(4,this,'D')">D. juice</button>
+    </div>
+    <div id="fb4" class="feedback" style="display:none"></div>
+    <div id="ex4" class="explanation" style="display:none">
+     Đáp án đúng: <b>juice</b><br>
+      Giải thích: Juice nghĩa là nước ép/nước trái cây.
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb4" class="btn btn-success" style="display:none" onclick="goTo('q5')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q5 Sentence Build -->
+  <div id="q5" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 5/12 — Sắp xếp câu
+    </div>
+    <div class="q-text">
+     Sắp xếp các từ thành câu đúng:
+    </div>
+    <div id="ans5" class="sentence-zone"></div>
+    <div id="pool5" class="word-pool"></div><button class="btn btn-orange" onclick="undoSentence(5)" style="margin-bottom:10px">↩ Undo</button> <button class="btn btn-primary" onclick="checkSentence(5)">Kiểm tra</button>
+    <div id="fb5" class="feedback" style="display:none"></div>
+    <div id="ex5" class="explanation" style="display:none">
+     Đáp án đúng: <b>This is my mother.</b><br>
+      Giải thích: "This is my mother." nghĩa là "Đây là mẹ của em."
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb5" class="btn btn-success" style="display:none" onclick="goTo('q6')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q6 -->
+  <div id="q6" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 6/12 — Sắp xếp câu
+    </div>
+    <div class="q-text">
+     Sắp xếp các từ thành câu đúng:
+    </div>
+    <div id="ans6" class="sentence-zone"></div>
+    <div id="pool6" class="word-pool"></div><button class="btn btn-orange" onclick="undoSentence(6)" style="margin-bottom:10px">↩ Undo</button> <button class="btn btn-primary" onclick="checkSentence(6)">Kiểm tra</button>
+    <div id="fb6" class="feedback" style="display:none"></div>
+    <div id="ex6" class="explanation" style="display:none">
+     Đáp án đúng: <b>I like juice.</b><br>
+      Giải thích: "I like..." dùng để nói mình thích điều gì. Juice nghĩa là nước ép. "I like juice." nghĩa là "Em thích nước ép."
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb6" class="btn btn-success" style="display:none" onclick="goTo('q7')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q7 -->
+  <div id="q7" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 7/12 — Sắp xếp câu
+    </div>
+    <div class="q-text">
+     Sắp xếp các từ thành câu đúng:
+    </div>
+    <div id="ans7" class="sentence-zone"></div>
+    <div id="pool7" class="word-pool"></div><button class="btn btn-orange" onclick="undoSentence(7)" style="margin-bottom:10px">↩ Undo</button> <button class="btn btn-primary" onclick="checkSentence(7)">Kiểm tra</button>
+    <div id="fb7" class="feedback" style="display:none"></div>
+    <div id="ex7" class="explanation" style="display:none">
+     Đáp án đúng: <b>I don't like fish.</b><br>
+      Giải thích: "I don't like..." dùng để nói mình không thích. Fish nghĩa là cá. "I don't like fish." nghĩa là "Em không thích cá."
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb7" class="btn btn-success" style="display:none" onclick="goTo('q8')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q8 -->
+  <div id="q8" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 8/12 — Sắp xếp câu
+    </div>
+    <div class="q-text">
+     Sắp xếp các từ thành câu đúng:
+    </div>
+    <div id="ans8" class="sentence-zone"></div>
+    <div id="pool8" class="word-pool"></div><button class="btn btn-orange" onclick="undoSentence(8)" style="margin-bottom:10px">↩ Undo</button> <button class="btn btn-primary" onclick="checkSentence(8)">Kiểm tra</button>
+    <div id="fb8" class="feedback" style="display:none"></div>
+    <div id="ex8" class="explanation" style="display:none">
+     Đáp án đúng: <b>Who's this?</b><br>
+      Giải thích: "Who's this?" nghĩa là "Đây là ai?" — dùng để hỏi về một người.
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb8" class="btn btn-success" style="display:none" onclick="goTo('q9')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q9 Fill blank -->
+  <div id="q9" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 9/12 — Điền từ
+    </div>
+    <div class="q-text">
+     I ________ like juice.
+    </div>
+    <div class="options"><button class="opt-btn" onclick="answer(9,this,'B')">A. am</button> <button class="opt-btn" onclick="answer(9,this,'B')">B. don't</button> <button class="opt-btn" onclick="answer(9,this,'B')">C. is</button> <button class="opt-btn" onclick="answer(9,this,'B')">D. are</button>
+    </div>
+    <div id="fb9" class="feedback" style="display:none"></div>
+    <div id="ex9" class="explanation" style="display:none">
+     Đáp án đúng: <b>don't</b><br>
+      Giải thích: Cấu trúc "I don't like + danh từ" dùng để nói rằng em không thích điều gì. Ví dụ: "I don't like juice." = "Em không thích nước ép." Các đáp án khác sai vì: am là động từ to be, is dùng với he/she/it, are dùng với you/we/they. Không đáp án nào trong các từ này có thể đứng trước like để tạo thành câu đúng.
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb9" class="btn btn-success" style="display:none" onclick="goTo('q10')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q10 -->
+  <div id="q10" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 10/12 — Điền từ
+    </div>
+    <div class="q-text">
+     I like ______.
+    </div>
+    <div class="options"><button class="opt-btn" onclick="answer(10,this,'A')">A. chicken</button> <button class="opt-btn" onclick="answer(10,this,'A')">B. grandmother</button> <button class="opt-btn" onclick="answer(10,this,'A')">C. brother</button> <button class="opt-btn" onclick="answer(10,this,'A')">D. father</button>
+    </div>
+    <div id="fb10" class="feedback" style="display:none"></div>
+    <div id="ex10" class="explanation" style="display:none">
+     Đáp án đúng: <b>chicken</b><br>
+      Giải thích: Chicken nghĩa là gà. "I like chicken." nghĩa là "Em thích gà."
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb10" class="btn btn-success" style="display:none" onclick="goTo('q11')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q11 -->
+  <div id="q11" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 11/12 — Điền từ
+    </div>
+    <div class="q-text">
+     Who's ______?
+    </div>
+    <div class="options"><button class="opt-btn" onclick="answer(11,this,'A')">A. this</button> <button class="opt-btn" onclick="answer(11,this,'A')">B. pizza</button> <button class="opt-btn" onclick="answer(11,this,'A')">C. bread</button> <button class="opt-btn" onclick="answer(11,this,'A')">D. rice</button>
+    </div>
+    <div id="fb11" class="feedback" style="display:none"></div>
+    <div id="ex11" class="explanation" style="display:none">
+     Đáp án đúng: <b>this</b><br>
+      Giải thích: "Who's this?" nghĩa là "Đây là ai?"
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb11" class="btn btn-success" style="display:none" onclick="goTo('q12')">➡ Câu tiếp theo</button>
+    </div>
+   </div>
+  </div><!-- Q12 -->
+  <div id="q12" class="page">
+   <div class="q-card">
+    <div class="q-num">
+     Câu 12/12 — Điền từ
+    </div>
+    <div class="q-text">
+     I don't like ______.
+    </div>
+    <div class="options"><button class="opt-btn" onclick="answer(12,this,'A')">A. juice</button> <button class="opt-btn" onclick="answer(12,this,'A')">B. grandmother</button> <button class="opt-btn" onclick="answer(12,this,'A')">C. sister</button> <button class="opt-btn" onclick="answer(12,this,'A')">D. father</button>
+    </div>
+    <div id="fb12" class="feedback" style="display:none"></div>
+    <div id="ex12" class="explanation" style="display:none">
+     Đáp án đúng: <b>juice</b><br>
+      Giải thích: "I don't like juice." nghĩa là "Em không thích nước ép."
+    </div>
+    <div class="next-btn-wrap">
+     <button id="nb12" class="btn btn-success" style="display:none" onclick="goTo('result')">➡ Xem kết quả</button>
+    </div>
+   </div>
+  </div><!-- RESULT -->
+  <div id="result" class="page">
+   <div class="q-card result-box">
+    <h2>🎉 Hoàn thành bài luyện tập</h2>
+    <div class="result-score" id="score-display">
+     0/12
+    </div>
+    <div class="result-detail" id="result-detail"></div>
+    <div class="result-comment" id="result-comment"></div><button class="btn btn-primary" onclick="resetAll()">🔄 LÀM LẠI</button>
+   </div>
+  </div>
+  <script>
+var score=0;
+var answered={};
+// Sentence data
+var sentences={
+5:{words:['my','This','mother','is','.'],correct:'This is my mother .'},
+6:{words:['juice','like','I','.'],correct:'I like juice .'},
+7:{words:['fish','like','don\'t','I','.'],correct:'I don\'t like fish .'},
+8:{words:['this','Who\'s','?'],correct:'Who\'s this ?'}
+};
+var sentenceState={};
+
+function checkPw(){
+var v=document.getElementById('pw').value;
+if(v==='1379'){goTo('q1');}
+else{document.getElementById('pw-error').textContent='Sai mật khẩu.';}
+}
+
+function goTo(id){
+var pages=document.querySelectorAll('.page');
+for(var i=0;i<pages.length;i++)pages[i].style.display='none';
+pages.forEach(function(p){p.classList.remove('active');});
+var el=document.getElementById(id);
+el.style.display='flex';
+el.classList.add('active');
+window.scrollTo(0,0);
+if(id==='result')showResult();
+}
+
+function answer(q,btn,correct){
+if(answered[q])return;
+answered[q]=true;
+var parent=btn.parentElement;
+var btns=parent.querySelectorAll('.opt-btn');
+var chosen=btn.textContent.charAt(0);
+var isCorrect=(chosen===correct);
+if(isCorrect){score++;btn.classList.add('correct');playCorrect();}
+else{btn.classList.add('wrong');playWrong();
+for(var i=0;i<btns.length;i++){if(btns[i].textContent.charAt(0)===correct)btns[i].classList.add('correct');}}
+for(var i=0;i<btns.length;i++)btns[i].classList.add('locked');
+var fb=document.getElementById('fb'+q);
+fb.style.display='block';
+fb.textContent=isCorrect?'✅ Chính xác':'❌ Chưa chính xác';
+fb.className='feedback '+(isCorrect?'correct-fb':'wrong-fb');
+document.getElementById('ex'+q).style.display='block';
+document.getElementById('nb'+q).style.display='inline-flex';
+}
+
+// Sentence builder
+function initSentences(){
+for(var q in sentences){
+sentenceState[q]={selected:[],locked:false};
+var pool=document.getElementById('pool'+q);
+pool.innerHTML='';
+var shuffled=sentences[q].words.slice().sort(function(){return Math.random()-.5;});
+for(var i=0;i<shuffled.length;i++){
+var chip=document.createElement('span');
+chip.className='word-chip';
+chip.textContent=shuffled[i];
+chip.setAttribute('data-q',q);
+chip.onclick=function(){clickWord(this);};
+pool.appendChild(chip);
+}
+document.getElementById('ans'+q).innerHTML='';
+}
+}
+
+function clickWord(el){
+var q=el.getAttribute('data-q');
+if(sentenceState[q].locked)return;
+el.classList.add('used');
+sentenceState[q].selected.push(el);
+var ans=document.getElementById('ans'+q);
+var chip=document.createElement('span');
+chip.className='word-chip in-answer';
+chip.textContent=el.textContent;
+ans.appendChild(chip);
+}
+
+function undoSentence(q){
+if(sentenceState[q].locked)return;
+var sel=sentenceState[q].selected;
+if(sel.length===0)return;
+var last=sel.pop();
+last.classList.remove('used');
+var ans=document.getElementById('ans'+q);
+if(ans.lastChild)ans.removeChild(ans.lastChild);
+}
+
+function checkSentence(q){
+if(sentenceState[q].locked)return;
+sentenceState[q].locked=true;
+answered[q]=true;
+var sel=sentenceState[q].selected;
+var userAns=sel.map(function(e){return e.textContent;}).join(' ');
+var isCorrect=(userAns===sentences[q].correct);
+if(isCorrect){score++;playCorrect();}else{playWrong();}
+var fb=document.getElementById('fb'+q);
+fb.style.display='block';
+fb.textContent=isCorrect?'✅ Chính xác':'❌ Chưa chính xác';
+fb.className='feedback '+(isCorrect?'correct-fb':'wrong-fb');
+document.getElementById('ex'+q).style.display='block';
+document.getElementById('nb'+q).style.display='inline-flex';
+}
+
+function showResult(){
+playVictory();
+document.getElementById('score-display').textContent=score+'/12';
+var pct=Math.round(score/12*100);
+document.getElementById('result-detail').textContent='Đúng: '+score+' | Sai: '+(12-score)+' | '+pct+'%';
+var c='';
+if(score===12)c='Xuất sắc! 🌟';
+else if(score>=10)c='Rất tốt! 👏';
+else if(score>=8)c='Khá tốt! 😊';
+else if(score>=6)c='Cần cố gắng thêm. 💪';
+else c='Hãy luyện tập lại nhé! 📚';
+document.getElementById('result-comment').textContent=c;
+}
+
+function resetAll(){
+score=0;answered={};
+// Reset MCQ
+for(var i=1;i<=12;i++){
+var fb=document.getElementById('fb'+i);
+if(fb){fb.style.display='none';fb.textContent='';}
+var ex=document.getElementById('ex'+i);
+if(ex)ex.style.display='none';
+var nb=document.getElementById('nb'+i);
+if(nb)nb.style.display='none';
+}
+var opts=document.querySelectorAll('.opt-btn');
+for(var i=0;i<opts.length;i++){opts[i].classList.remove('correct','wrong','locked');}
+initSentences();
+document.getElementById('pw').value='';
+document.getElementById('pw-error').textContent='';
+goTo('cover');
+}
+
+// Audio
+var audioCtx;
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playCorrect(){var ctx=getCtx();var o=ctx.createOscillator();var g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.setValueAtTime(523,ctx.currentTime);o.frequency.setValueAtTime(659,ctx.currentTime+.15);o.frequency.setValueAtTime(784,ctx.currentTime+.3);g.gain.setValueAtTime(.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.01,ctx.currentTime+.6);o.start();o.stop(ctx.currentTime+.6);}
+function playWrong(){var ctx=getCtx();var o=ctx.createOscillator();var g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sawtooth';o.frequency.setValueAtTime(200,ctx.currentTime);o.frequency.setValueAtTime(150,ctx.currentTime+.2);g.gain.setValueAtTime(.2,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.01,ctx.currentTime+.5);o.start();o.stop(ctx.currentTime+.5);}
+function playVictory(){var ctx=getCtx();var notes=[523,587,659,784,880];for(var i=0;i<notes.length;i++){var o=ctx.createOscillator();var g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=notes[i];g.gain.setValueAtTime(.25,ctx.currentTime+i*.2);g.gain.exponentialRampToValueAtTime(.01,ctx.currentTime+i*.2+.4);o.start(ctx.currentTime+i*.2);o.stop(ctx.currentTime+i*.2+.4);}}
+
+// Init
+initSentences();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a129a1fc747dce12',t:'MTc4MjYxNzYzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
